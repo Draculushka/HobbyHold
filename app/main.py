@@ -7,33 +7,80 @@ from . import schemas
 from fastapi.staticfiles import StaticFiles
 from fastapi import UploadFile, File
 import shutil
+from fastapi import Form
+import shutil
+from fastapi.responses import RedirectResponse
 
 app = FastAPI()
 templates = Jinja2Templates(directory="app/templates")
-
+app.mount("/uploads", StaticFiles(directory="app/uploads"), name="uploads")
 Base.metadata.create_all(bind=engine)
 
 @app.get("/")
-def home(request: Request, db: Session = Depends(get_db)):
-    posts = db.query(Post).all()
+def home(
+    request: Request,
+    page: int = 1,
+    db: Session = Depends(get_db)
+):
+
+    limit = 5
+    offset = (page - 1) * limit
+
+    posts = db.query(Post).offset(offset).limit(limit).all()
 
     return templates.TemplateResponse(
         "index.html",
-        {"request": request, "posts": posts}
+        {"request": request, "posts": posts, "page": page}
     )
-@app.post("/posts", response_model=schemas.Post)
-def create_post(post: schemas.PostCreate, db: Session = Depends(get_db)):
+
+@app.get("/edit/{post_id}")
+def edit_post_page(post_id: int, request: Request, db: Session = Depends(get_db)):
+
+    post = db.query(Post).filter(Post.id == post_id).first()
+
+    return templates.TemplateResponse(
+        "edit.html",
+        {"request": request, "post": post}
+    )
+
+@app.post("/create-post")
+def create_post_form(
+    title: str = Form(...),
+    description: str = Form(...),
+    image: UploadFile = File(None),
+    db: Session = Depends(get_db)
+):
+
+    image_name = None
+
+    if image:
+        image_name = image.filename
+        file_path = f"app/uploads/{image_name}"
+
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(image.file, buffer)
+
     db_post = Post(
-    title=post.title,
-    description=post.description,
-    image_path=post.image_path
-)
+        title=title,
+        description=description,
+        image_path=image_name
+    )
+
     db.add(db_post)
     db.commit()
-    db.refresh(db_post)
 
-    return db_post
-app.mount("/uploads", StaticFiles(directory="app/uploads"), name="uploads")
+    return RedirectResponse("/", status_code=303)
+
+@app.post("/delete-post/{post_id}")
+def delete_post_form(post_id: int, db: Session = Depends(get_db)):
+
+    post = db.query(Post).filter(Post.id == post_id).first()
+
+    if post:
+        db.delete(post)
+        db.commit()
+
+    return RedirectResponse("/", status_code=303)
 
 @app.get("/posts", response_model=list[schemas.Post])
 def get_posts(db: Session = Depends(get_db)):
@@ -56,22 +103,24 @@ def delete_post(post_id: int, db: Session = Depends(get_db)):
 
     return {"error": "Post not found"}
 
-@app.put("/posts/{post_id}", response_model=schemas.Post)
-def update_post(post_id: int, post: schemas.PostCreate, db: Session = Depends(get_db)):
-    db_post = db.query(Post).filter(Post.id == post_id).first()
+@app.post("/update/{post_id}")
+def update_post_form(
+    post_id: int,
+    title: str = Form(...),
+    description: str = Form(...),
+    db: Session = Depends(get_db)
+):
 
-    if db_post:
-        db_post.title = post.title
-        db_post.description = post.description
+    post = db.query(Post).filter(Post.id == post_id).first()
 
+    if post:
+        post.title = title
+        post.description = description
         db.commit()
-        db.refresh(db_post)
 
-        return db_post
+    return RedirectResponse("/", status_code=303)
 
-    return {"error": "Post not found"}
 
-@app.post("/upload")
 def upload_image(file: UploadFile = File(...)):
     file_path = f"app/uploads/{file.filename}"
 
