@@ -8,8 +8,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi import UploadFile, File
 import shutil
 from fastapi import Form
-import shutil
 from fastapi.responses import RedirectResponse
+from fastapi import HTTPException
+import uuid
 
 app = FastAPI()
 templates = Jinja2Templates(directory="app/templates")
@@ -50,25 +51,19 @@ def create_post_form(
     image: UploadFile = File(None),
     db: Session = Depends(get_db)
 ):
-
     image_name = None
-
-    if image:
-        image_name = image.filename
+    if image and image.filename:
+        image_name = f"{uuid.uuid4()}_{image.filename}"
         file_path = f"app/uploads/{image_name}"
-
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(image.file, buffer)
-
     db_post = Post(
         title=title,
         description=description,
         image_path=image_name
     )
-
     db.add(db_post)
     db.commit()
-
     return RedirectResponse("/", status_code=303)
 
 @app.post("/delete-post/{post_id}")
@@ -89,7 +84,12 @@ def get_posts(db: Session = Depends(get_db)):
 
 @app.get("/posts/{post_id}", response_model=schemas.Post)
 def get_post(post_id: int, db: Session = Depends(get_db)):
+
     post = db.query(Post).filter(Post.id == post_id).first()
+
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
     return post
 
 @app.delete("/posts/{post_id}")
@@ -128,3 +128,4 @@ def upload_image(file: UploadFile = File(...)):
         shutil.copyfileobj(file.file, buffer)
 
     return {"filename": file.filename}
+

@@ -1,10 +1,10 @@
 from pydantic import BaseModel
 from datetime import datetime
 
-
 class PostCreate(BaseModel):
     title: str
     description: str | None = None
+    image_path: str | None = None
 
 
 class Post(BaseModel):
@@ -16,8 +16,3 @@ class Post(BaseModel):
 
     class Config:
         from_attributes = True
-
-class PostCreate(BaseModel):
-    title: str
-    description: str | None = None
-    image_path: str | None = None
