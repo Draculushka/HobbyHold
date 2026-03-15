@@ -1,0 +1,79 @@
+# Руководство по развертыванию (Deployment)
+
+Это руководство предназначено для запуска проекта HobbyHeaven на сервере (например, VPS с Ubuntu).
+
+---
+
+## 1. Подготовка сервера
+
+Убедитесь, что на сервере установлены **Docker** и **Docker Compose**.
+
+### Установка (для Ubuntu/Debian):
+```bash
+sudo apt update
+sudo apt install docker.io docker-compose -y
+sudo systemctl enable --now docker
+```
+
+---
+
+## 2. Клонирование и настройка
+
+```bash
+git clone https://github.com/yourusername/hobbyheaven.git
+cd hobbyheaven
+```
+
+### Настройка переменных окружения:
+Создайте файл `.env` в корне проекта на основе вашего конфига:
+```bash
+# Пример содержимого .env
+POSTGRES_USER=draculushka
+POSTGRES_PASSWORD=secure_password
+POSTGRES_DB=hobbyheaven
+DATABASE_URL=postgresql://draculushka:secure_password@db/hobbyheaven
+```
+
+---
+
+## 3. Запуск приложения
+
+```bash
+# Сборка и запуск в фоновом режиме
+docker-compose up -d --build
+```
+
+### Проверка состояния:
+```bash
+docker-compose ps
+docker-compose logs -f web
+```
+
+---
+
+## 4. Обновление базы данных (Миграции)
+
+После первого запуска (или обновления кода) необходимо применить миграции внутри контейнера:
+
+```bash
+docker-compose exec web alembic upgrade head
+```
+
+---
+
+## 5. Обновление проекта
+
+Когда вы вносите изменения в код:
+1.  **Стяните изменения:** `git pull origin main`
+2.  **Пересоберите контейнеры:** `docker-compose up -d --build`
+3.  **Примените миграции:** `docker-compose exec web alembic upgrade head`
+
+---
+
+## 6. Безопасность и HTTPS (Опционально)
+
+Для полноценной работы в сети рекомендуется настроить SSL-сертификат (HTTPS) с помощью **Certbot**.
+
+1.  Установите Certbot: `sudo apt install certbot python3-certbot-nginx`
+2.  Настройте конфиг Nginx (потребуется доменное имя).
+3.  Получите сертификат: `sudo certbot --nginx -d example.com`
