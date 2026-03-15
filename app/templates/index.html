@@ -17,6 +17,22 @@
     </style>
 </head>
 <body class="text-[#2D3436] antialiased">
+    <!-- Navigation Bar -->
+    <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-40 border-b border-[#F1F2F6]">
+        <div class="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold text-[#E67E22] tracking-tighter">HobbyHeaven</a>
+            <div class="flex items-center gap-6">
+                {% if user %}
+                <span class="text-sm font-medium text-[#7F8C8D]">Привет, <span class="text-[#2D3436] font-bold">{{ user.username }}</span></span>
+                <a href="/logout" class="text-sm font-bold text-[#BDC3C7] hover:text-[#C0392B] transition-colors">Выйти</a>
+                {% else %}
+                <a href="/login" class="text-sm font-bold text-[#7F8C8D] hover:text-[#E67E22] transition-colors">Войти</a>
+                <a href="/register" class="bg-[#E67E22] text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-[#D35400] transition-all">Регистрация</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
     <div class="max-w-4xl mx-auto p-6 md:p-12">
         <!-- Header -->
         <header class="mb-16 text-center">
@@ -30,6 +46,7 @@
 
         <!-- Create Hobby Section -->
         <section class="mb-20">
+            {% if user %}
             <div class="bg-white p-8 md:p-10 rounded-[32px] border border-[#F1F2F6] shadow-sm">
                 <h2 class="text-3xl font-bold mb-8 flex items-center gap-3">
                     <span class="w-1.5 h-8 bg-[#E67E22] rounded-full"></span>
@@ -47,17 +64,12 @@
                                 <!-- JS will inject options here -->
                             </div>
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-sm font-semibold uppercase tracking-wider text-[#95A5A6] ml-1">Автор</label>
-                            <input class="w-full bg-[#F8F9FA] border-none rounded-2xl p-4 focus:ring-2 focus:ring-[#E67E22] outline-none transition-all placeholder:text-[#BDC3C7]" 
-                                   type="text" name="author" placeholder="Ваше имя или никнейм" required>
+                        <div class="space-y-2 relative">
+                            <label class="text-sm font-semibold uppercase tracking-wider text-[#95A5A6] ml-1">Теги (через запятую)</label>
+                            <input id="tags-input" class="w-full bg-[#F8F9FA] border-none rounded-2xl p-4 focus:ring-2 focus:ring-[#E67E22] outline-none transition-all placeholder:text-[#BDC3C7]" 
+                                   type="text" name="tags_input" placeholder="Спорт, Музыка, Настольные игры..." autocomplete="off">
+                            <div id="tags-results" class="absolute z-20 left-0 right-0 bg-white mt-2 rounded-2xl shadow-xl border border-[#F1F2F6] hidden overflow-hidden"></div>
                         </div>
-                    </div>
-
-                    <div class="space-y-2">
-                        <label class="text-sm font-semibold uppercase tracking-wider text-[#95A5A6] ml-1">Теги (через запятую)</label>
-                        <input class="w-full bg-[#F8F9FA] border-none rounded-2xl p-4 focus:ring-2 focus:ring-[#E67E22] outline-none transition-all placeholder:text-[#BDC3C7]" 
-                               type="text" name="tags_input" placeholder="Спорт, Музыка, Настольные игры...">
                     </div>
 
                     <div class="space-y-2">
@@ -94,6 +106,16 @@
                     </div>
                 </form>
             </div>
+            {% else %}
+            <div class="bg-[#FDF2E9] p-10 rounded-[40px] border border-orange-100 text-center">
+                <h3 class="text-2xl font-bold mb-4">Хотите поделиться своей историей?</h3>
+                <p class="text-[#7F8C8D] font-serif italic mb-8">Войдите в систему или создайте аккаунт, чтобы вдохновлять других.</p>
+                <div class="flex justify-center gap-4">
+                    <a href="/login" class="bg-[#E67E22] text-white font-bold px-8 py-3.5 rounded-2xl hover:bg-[#D35400] shadow-lg shadow-orange-200 transition-all">Войти</a>
+                    <a href="/register" class="bg-white text-[#E67E22] border border-orange-200 font-bold px-8 py-3.5 rounded-2xl hover:bg-orange-50 transition-all">Регистрация</a>
+                </div>
+            </div>
+            {% endif %}
         </section>
 
         <!-- Search & Feed -->
@@ -153,17 +175,21 @@
                                     </div>
                                     <time class="text-[#BDC3C7] text-sm font-medium">{{ hobby.created_at.strftime('%d.%m.%Y') }}</time>
                                 </div>
-                                <h3 class="text-3xl font-bold leading-tight mb-6 text-[#2D3436]">{{ hobby.author or 'Странник' }}</h3>
+                                <h3 class="text-3xl font-bold leading-tight mb-6 text-[#2D3436]">{{ hobby.author_user.username if hobby.author_user else hobby.author or 'Странник' }}</h3>
                                 <div class="text-[#7F8C8D] leading-relaxed font-serif text-lg italic line-clamp-4">
                                     {{ hobby.description | safe }}
                                 </div>
                             </div>
 
                             <div class="mt-10 flex items-center justify-between border-t border-[#F8F9FA] pt-6">
+                                {% if user and hobby.author_id == user.id %}
                                 <a href="/edit/{{ hobby.id }}" class="text-[#E67E22] font-bold hover:underline">Изменить</a>
                                 <form action="/delete-hobby/{{ hobby.id }}" method="post" onsubmit="return confirm('Вы уверены, что хотите удалить эту историю?');">
                                     <button class="text-[#BDC3C7] hover:text-[#C0392B] transition-colors font-medium">Удалить</button>
                                 </form>
+                                {% else %}
+                                <span class="text-[#BDC3C7] text-sm">Только для чтения</span>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -221,47 +247,108 @@
         // --- Custom Autocomplete Logic ---
         const hobbyInput = document.getElementById('hobby-input');
         const resultsDiv = document.getElementById('autocomplete-results');
+        const tagsInput = document.getElementById('tags-input');
+        const tagsResultsDiv = document.getElementById('tags-results');
+        
         const hobbiesList = [
-            "Рисование", "Кулинария", "Фотография", "Программирование", 
-            "Вязание", "Путешествия", "Йога", "Спорт", "Шахматы", 
-            "Шашки", "Музыка", "Шитьё", "Танцы", "Моделирование"
+            {ru: "Вархаммер", en: "Warhammer"}, 
+            {ru: "Вархаммер 40000", en: "Warhammer 40k"}, 
+            {ru: "Вархаммер: Эра Сигмара", en: "Warhammer Age of Sigmar"}, 
+            {ru: "Подземелья и Драконы", en: "Dungeons & Dragons (D&D)"},
+            {ru: "Магия: Встреча", en: "Magic: The Gathering (MTG)"},
+            {ru: "Рисование", en: "Drawing"}, 
+            {ru: "Кулинария", en: "Cooking"}, 
+            {ru: "Фотография", en: "Photography"}, 
+            {ru: "Программирование", en: "Programming"}, 
+            {ru: "Вязание", en: "Knitting"}, 
+            {ru: "Путешествия", en: "Traveling"}, 
+            {ru: "Йога", en: "Yoga"}, 
+            {ru: "Спорт", en: "Sport"}, 
+            {ru: "Шахматы", en: "Chess"}, 
+            {ru: "Шашки", en: "Checkers"}, 
+            {ru: "Музыка", en: "Music"}, 
+            {ru: "Шитьё", en: "Sewing"}, 
+            {ru: "Танцы", en: "Dancing"}, 
+            {ru: "Моделирование", en: "Modeling"},
+            {ru: "Велоспорт", en: "Cycling"},
+            {ru: "Походы", en: "Hiking"},
+            {ru: "Садоводство", en: "Gardening"}
         ];
 
-        hobbyInput.addEventListener('input', function() {
-            const value = this.value.toLowerCase();
-            resultsDiv.innerHTML = '';
-            
-            if (!value) {
-                resultsDiv.classList.add('hidden');
-                return;
-            }
+        const tagsList = [
+            {ru: "Вархаммер", en: "Warhammer"},
+            {ru: "Настольные игры", en: "Board Games"}, 
+            {ru: "Спорт", en: "Sport"}, 
+            {ru: "Музыка", en: "Music"}, 
+            {ru: "Шахматы", en: "Chess"},
+            {ru: "Искусство", en: "Art"}, 
+            {ru: "Рукоделие", en: "Handmade"}, 
+            {ru: "Технологии", en: "Tech"}, 
+            {ru: "Природа", en: "Nature"}, 
+            {ru: "Еда", en: "Food"}, 
+            {ru: "Интеллектуальное", en: "Intellectual"}, 
+            {ru: "Для начинающих", en: "Beginner"}, 
+            {ru: "Профи", en: "Pro"}
+        ];
 
-            const filtered = hobbiesList.filter(hobby => 
-                hobby.toLowerCase().startsWith(value)
+        // Hobby Autocomplete
+        hobbyInput.addEventListener('input', function() {
+            const value = this.value.toLowerCase().trim();
+            resultsDiv.innerHTML = '';
+            if (!value) { resultsDiv.classList.add('hidden'); return; }
+            
+            const filtered = hobbiesList.filter(h => 
+                h.ru.toLowerCase().includes(value) || h.en.toLowerCase().includes(value)
             );
 
             if (filtered.length > 0) {
-                filtered.forEach(hobby => {
+                filtered.forEach(h => {
                     const item = document.createElement('div');
-                    item.className = 'p-4 hover:bg-[#FDF2E9] hover:text-[#E67E22] cursor-pointer transition-colors border-b border-[#F8F9FA] last:border-0 font-medium';
-                    item.textContent = hobby;
-                    item.onclick = function() {
-                        hobbyInput.value = hobby;
-                        resultsDiv.classList.add('hidden');
+                    item.className = 'p-4 hover:bg-[#FDF2E9] hover:text-[#E67E22] cursor-pointer transition-colors border-b border-[#F8F9FA] last:border-0 font-medium flex justify-between';
+                    item.innerHTML = `<span>${h.ru}</span><span class="text-xs text-[#BDC3C7]">${h.en}</span>`;
+                    item.onclick = () => { 
+                        hobbyInput.value = h.ru; 
+                        resultsDiv.classList.add('hidden'); 
                     };
                     resultsDiv.appendChild(item);
                 });
                 resultsDiv.classList.remove('hidden');
-            } else {
-                resultsDiv.classList.add('hidden');
-            }
+            } else { resultsDiv.classList.add('hidden'); }
         });
 
-        // Close list if click outside
+        // Tags Autocomplete
+        tagsInput.addEventListener('input', function() {
+            const parts = this.value.split(',');
+            const lastPart = parts[parts.length - 1].trim().toLowerCase();
+            tagsResultsDiv.innerHTML = '';
+            
+            if (!lastPart) { tagsResultsDiv.classList.add('hidden'); return; }
+            
+            const filtered = tagsList.filter(t => 
+                t.ru.toLowerCase().includes(lastPart) || t.en.toLowerCase().includes(lastPart)
+            );
+
+            if (filtered.length > 0) {
+                filtered.forEach(t => {
+                    const item = document.createElement('div');
+                    item.className = 'p-4 hover:bg-[#FDF2E9] hover:text-[#E67E22] cursor-pointer transition-colors border-b border-[#F8F9FA] last:border-0 font-medium flex justify-between';
+                    item.innerHTML = `<span>${t.ru}</span><span class="text-xs text-[#BDC3C7]">${t.en}</span>`;
+                    item.onclick = () => {
+                        parts[parts.length - 1] = " " + t.ru;
+                        tagsInput.value = parts.join(',').trim();
+                        tagsResultsDiv.classList.add('hidden');
+                        tagsInput.focus();
+                    };
+                    tagsResultsDiv.appendChild(item);
+                });
+                tagsResultsDiv.classList.remove('hidden');
+            } else { tagsResultsDiv.classList.add('hidden'); }
+        });
+
+        // Close lists if click outside
         document.addEventListener('click', function(e) {
-            if (!hobbyInput.contains(e.target) && !resultsDiv.contains(e.target)) {
-                resultsDiv.classList.add('hidden');
-            }
+            if (!hobbyInput.contains(e.target) && !resultsDiv.contains(e.target)) resultsDiv.classList.add('hidden');
+            if (!tagsInput.contains(e.target) && !tagsResultsDiv.contains(e.target)) tagsResultsDiv.classList.add('hidden');
         });
     </script>
 </body>

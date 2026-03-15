@@ -5,13 +5,10 @@ services:
   db:
     image: postgres:16
     container_name: hobby_db
-    environment:
-      - POSTGRES_USER=draculushka
-      - POSTGRES_PASSWORD=secure_password
-      - POSTGRES_DB=hobbyheaven
+    env_file: .env
     volumes:
-      # Теперь данные БД хранятся прямо в папке проекта
-      - ./data/postgres:/var/lib/postgresql/data
+      # Используем новую версию данных для чистоты
+      - ./data/postgres_v2:/var/lib/postgresql/data
     networks:
       - hobby_network
     restart: always
@@ -20,15 +17,11 @@ services:
   web:
     build: .
     container_name: hobby_web
-    environment:
-      - DATABASE_URL=postgresql://draculushka:secure_password@db/hobbyheaven
-      - PYTHONUNBUFFERED=1
+    env_file: .env
     depends_on:
       - db
     volumes:
-      # Прокидываем папку с кодом для мгновенного обновления
       - ./app:/app/app
-      # Картинки тоже выносим в общую папку данных
       - ./data/uploads:/app/app/uploads
     networks:
       - hobby_network

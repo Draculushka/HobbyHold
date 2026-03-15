@@ -27,11 +27,13 @@ cd hobbyheaven
 ### Настройка переменных окружения:
 Создайте файл `.env` в корне проекта на основе вашего конфига:
 ```bash
-# Пример содержимого .env
-POSTGRES_USER=draculushka
-POSTGRES_PASSWORD=secure_password
+Создайте файл `.env` в корне проекта (на основе `.env.example`) и укажите там свои данные:
+```bash
+POSTGRES_USER=hobby_user
+POSTGRES_PASSWORD=ваш_надежный_пароль
 POSTGRES_DB=hobbyheaven
-DATABASE_URL=postgresql://draculushka:secure_password@db/hobbyheaven
+SECRET_KEY=длинная_случайная_строка
+DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/hobbyheaven
 ```
 
 ---

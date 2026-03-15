@@ -15,6 +15,21 @@
     </style>
 </head>
 <body class="text-[#2D3436] antialiased">
+    <!-- Navigation Bar -->
+    <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-40 border-b border-[#F1F2F6]">
+        <div class="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold text-[#E67E22] tracking-tighter">HobbyHeaven</a>
+            <div class="flex items-center gap-6">
+                {% if user %}
+                <span class="text-sm font-medium text-[#7F8C8D]">Привет, <span class="text-[#2D3436] font-bold">{{ user.username }}</span></span>
+                <a href="/logout" class="text-sm font-bold text-[#BDC3C7] hover:text-[#C0392B] transition-colors">Выйти</a>
+                {% else %}
+                <a href="/login" class="text-sm font-bold text-[#7F8C8D] hover:text-[#E67E22] transition-colors">Войти</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
     <div class="max-w-4xl mx-auto p-6 md:p-12">
         <!-- Header -->
         <header class="mb-12 flex items-center justify-between">
@@ -40,16 +55,10 @@
                                    type="text" name="title" value="{{ hobby.title }}" autocomplete="off" required>
                         </div>
                         <div class="space-y-2">
-                            <label class="text-sm font-semibold uppercase tracking-wider text-[#95A5A6] ml-1">Автор</label>
+                            <label class="text-sm font-semibold uppercase tracking-wider text-[#95A5A6] ml-1">Теги (через запятую)</label>
                             <input class="w-full bg-[#F8F9FA] border-none rounded-2xl p-4 focus:ring-2 focus:ring-[#E67E22] outline-none transition-all" 
-                                   type="text" name="author" value="{{ hobby.author }}" required>
+                                   type="text" name="tags_input" value="{{ tags_str }}">
                         </div>
-                    </div>
-
-                    <div class="space-y-2">
-                        <label class="text-sm font-semibold uppercase tracking-wider text-[#95A5A6] ml-1">Теги (через запятую)</label>
-                        <input class="w-full bg-[#F8F9FA] border-none rounded-2xl p-4 focus:ring-2 focus:ring-[#E67E22] outline-none transition-all" 
-                               type="text" name="tags_input" value="{{ tags_str }}">
                     </div>
 
                     <div class="space-y-2">
