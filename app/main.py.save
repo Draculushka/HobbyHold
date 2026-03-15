@@ -5,28 +5,15 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from .database import engine, get_db
 from .models import Base, Post
-from . import schemas
+1from . import schemas
 import shutil
 import uuid
-import os
 from datetime import datetime
-from pathlib import Path
 
 app = FastAPI()
-
-# Определяем абсолютный путь к папке файла main.py (т.е. к папке app)
-BASE_DIR = Path(__file__).resolve().parent
-# Папка загрузок будет находиться внутри папки app
-UPLOAD_DIR = BASE_DIR / "uploads"
-
-# Создаем папку для загрузок, если её нет
-os.makedirs(UPLOAD_DIR, exist_ok=True)
-
-# Шаблоны и статика также по абсолютным путям
-templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
-app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
-
-# Base.metadata.create_all(bind=engine)  # Теперь это делает Alembic
+templates = Jinja2Templates(directory="app/templates")
+app.mount("/uploads", StaticFiles(directory="app/uploads"), name="uploads")
+Base.metadata.create_all(bind=engine)
 
 @app.get("/")
 def home(request: Request, page: int = 1, db: Session = Depends(get_db)):
@@ -59,10 +46,9 @@ async def create_post(
 
     image_filename = None
 
-    if image and image.filename:
-        # Генерируем уникальное имя файла
-        image_filename = f"{uuid.uuid4()}_{image.filename}"
-        path = UPLOAD_DIR / image_filename
+    if image:
+        image_filename = image.filename
+        path = f"uploads/{image_filename}"
 
         with open(path, "wb") as buffer:
             shutil.copyfileobj(image.file, buffer)
@@ -83,7 +69,6 @@ async def create_post(
 @app.post("/update/{post_id}")
 def update_post_form(
     post_id: int,
-    author: str = Form(...),
     title: str = Form(...),
     description: str = Form(...),
     image: UploadFile = File(None),
@@ -91,18 +76,11 @@ def update_post_form(
 ):
     post = db.query(Post).filter(Post.id == post_id).first()
     if post:
-        post.author = author
         post.title = title
         post.description = description
         if image and image.filename:
-            # Удаляем старый файл, если он был
-            if post.image_path:
-                old_path = UPLOAD_DIR / post.image_path
-                if old_path.exists():
-                    old_path.unlink()
-
             image_name = f"{uuid.uuid4()}_{image.filename}"
-            file_path = UPLOAD_DIR / image_name
+            file_path = f"app/uploads/{image_name}"
             with open(file_path, "wb") as buffer:
                 shutil.copyfileobj(image.file, buffer)
             post.image_path = image_name
@@ -113,10 +91,6 @@ def update_post_form(
 def delete_post_form(post_id: int, db: Session = Depends(get_db)):
     post = db.query(Post).filter(Post.id == post_id).first()
     if post:
-        if post.image_path:
-            old_path = UPLOAD_DIR / post.image_path
-            if old_path.exists():
-                old_path.unlink()
         db.delete(post)
         db.commit()
     return RedirectResponse("/", status_code=303)

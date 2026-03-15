@@ -1,0 +1,1 @@
+/home/draculushka/.gemini/tmp/bin/rg
