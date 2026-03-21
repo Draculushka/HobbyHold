@@ -33,7 +33,7 @@ def upgrade() -> None:
     )
     op.create_index(op.f('ix_personas_id'), 'personas', ['id'], unique=False)
     op.create_index(op.f('ix_personas_username'), 'personas', ['username'], unique=True)
-    
+
     # 2. Добавляем колонку persona_id в hobbies (пока nullable=True для миграции данных)
     op.add_column('hobbies', sa.Column('persona_id', sa.Integer(), nullable=True))
     op.add_column('users', sa.Column('deleted_at', sa.DateTime(), nullable=True))
@@ -41,7 +41,7 @@ def upgrade() -> None:
     # 3. Переносим данные: Для каждого пользователя создаем дефолтную Персону
     # Это критический шаг, чтобы не потерять авторов старых постов
     connection = op.get_bind()
-    
+
     # Получаем старых юзеров
     users = connection.execute(sa.text("SELECT id, username FROM users")).fetchall()
     for user in users:
@@ -55,7 +55,7 @@ def upgrade() -> None:
             sa.text("SELECT id FROM personas WHERE user_id = :user_id"),
             {"user_id": user[0]}
         ).scalar()
-        
+
         # Обновляем все хобби этого юзера, привязывая их к новой персоне
         connection.execute(
             sa.text("UPDATE hobbies SET persona_id = :persona_id WHERE author_id = :user_id"),
@@ -70,7 +70,7 @@ def upgrade() -> None:
     op.create_foreign_key(None, 'hobbies', 'personas', ['persona_id'], ['id'])
     op.drop_column('hobbies', 'author_id')
     op.drop_column('hobbies', 'author')
-    
+
     op.drop_index('ix_users_username', table_name='users')
     op.drop_column('users', 'username')
     # ### end Alembic commands ###

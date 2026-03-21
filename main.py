@@ -1,14 +1,14 @@
 import logging
 import os
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(name)s %(levelname)s %(message)s')
-
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from starlette_csrf import CSRFMiddleware
 
-from core.config import UPLOAD_DIR, SECRET_KEY
-from api.endpoints import auth, hobbies, profile
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(name)s %(levelname)s %(message)s')
+
+from core.config import UPLOAD_DIR, SECRET_KEY  # noqa: E402
+from api.endpoints import auth, hobbies, profile  # noqa: E402
 
 # Убедимся, что папка для загрузок существует
 os.makedirs(UPLOAD_DIR, exist_ok=True)

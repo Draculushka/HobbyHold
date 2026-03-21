@@ -20,7 +20,7 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     # Переименовываем таблицу posts в hobbies
     op.rename_table('posts', 'hobbies')
-    
+
     # Переименовываем индексы и ограничения (Alembic обычно делает это автоматически при rename_table в некоторых диалектах, но лучше явно)
     # В PostgreSQL индексы при переименовании таблицы сохраняются, но их имена могут остаться старыми.
     op.execute("ALTER INDEX ix_posts_id RENAME TO ix_hobbies_id")
@@ -49,7 +49,7 @@ def downgrade() -> None:
     op.drop_table('hobby_tags')
     op.drop_index(op.f('ix_tags_id'), table_name='tags')
     op.drop_table('tags')
-    
+
     op.execute("ALTER INDEX ix_hobbies_id RENAME TO ix_posts_id")
     op.execute("ALTER TABLE hobbies RENAME CONSTRAINT hobbies_pkey TO posts_pkey")
     op.rename_table('hobbies', 'posts')

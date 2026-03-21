@@ -2,7 +2,7 @@
 P0 endpoint integration tests for auth flows.
 """
 from datetime import datetime, timezone
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 from models import User, Persona
 from core.security import get_password_hash, create_access_token

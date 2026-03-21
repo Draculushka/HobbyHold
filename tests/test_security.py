@@ -2,9 +2,8 @@
 
 import asyncio
 from datetime import datetime, timezone, timedelta
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
-import pytest
 from jose import jwt
 
 from core.config import SECRET_KEY, ALGORITHM

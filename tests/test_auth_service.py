@@ -1,6 +1,5 @@
-import pytest
 from datetime import datetime, timezone
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 from models import User, Persona
 from core.security import verify_password

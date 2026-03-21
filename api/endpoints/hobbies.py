@@ -52,7 +52,7 @@ def create_hobby(
 
     # Если persona_id не передана, используем дефолтную персону пользователя
     if not persona_id:
-        persona = db.query(Persona).filter(Persona.user_id == current_user.id, Persona.is_default == True).first()
+        persona = db.query(Persona).filter(Persona.user_id == current_user.id, Persona.is_default.is_(True)).first()
         if not persona:
             persona = db.query(Persona).filter(Persona.user_id == current_user.id).first()
         if not persona:
