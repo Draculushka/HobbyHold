@@ -4,10 +4,10 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from typing import Optional
 
-from ...database import get_db
-from ...services import auth_service
-from ...core.security import create_access_token
-from ...core.config import TEMPLATES_DIR
+from database import get_db
+from services import auth_service
+from core.security import create_access_token
+from core.config import TEMPLATES_DIR
 
 router = APIRouter()
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))

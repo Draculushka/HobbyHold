@@ -4,8 +4,8 @@ from pathlib import Path
 from typing import List
 import bleach
 from sqlalchemy.orm import Session
-from ..models import Hobby, Tag, User
-from ..core.config import UPLOAD_DIR
+from models import Hobby, Tag, User
+from core.config import UPLOAD_DIR
 from datetime import datetime, timezone
 
 def sanitize_description(description: str) -> str:

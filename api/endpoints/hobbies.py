@@ -5,11 +5,11 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_, func
 from typing import Optional
 
-from ...database import get_db
-from ...models import Hobby, User
-from ...services import hobby_service
-from ...core.security import get_current_user
-from ...core.config import TEMPLATES_DIR, HOBBY_SYNONYMS
+from database import get_db
+from models import Hobby, User
+from services import hobby_service
+from core.security import get_current_user
+from core.config import TEMPLATES_DIR, HOBBY_SYNONYMS
 
 router = APIRouter()
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))

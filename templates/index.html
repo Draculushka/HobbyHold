@@ -45,23 +45,48 @@
     <nav class="bg-white/90 backdrop-blur-xl sticky top-0 z-50 border-b border-[#F1F2F6]">
         <div class="max-w-6xl mx-auto px-4 h-16 flex items-center gap-4">
             
-            <!-- Hybrid Schematic Logo (Detailed structure + Original Colors) -->
+            <!-- Modern Premium Logo (2025 Style) -->
             <a href="/" class="flex-shrink-0 group">
-                <div class="w-10 h-10 bg-[#E67E22] rounded-xl flex items-center justify-center shadow-lg shadow-orange-100 hover:scale-110 transition-transform">
-                    <svg width="28" height="28" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                        <g transform="rotate(-45, 100, 100)">
-                            <!-- handle (schematic) -->
-                            <rect x="93" y="56" width="14" height="80" rx="4" fill="white"/>
-                            <!-- ferrule (schematic) -->
-                            <rect x="90" y="42" width="20" height="16" rx="3" fill="white" opacity="0.6"/>
-                            <!-- bristles (3 main paths for movement) -->
-                            <path d="M92 42 Q85 25 92 8"  stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-                            <path d="M100 42 Q100 24 100 6" stroke="white" stroke-width="3" fill="none" stroke-linecap="round"/>
-                            <path d="M108 42 Q115 25 108 8" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-                            <!-- paint tip (schematic glow) -->
-                            <circle cx="100" cy="8" r="15" fill="white" opacity="0.25"/>
-                            <circle cx="100" cy="8" r="8" fill="white" opacity="0.4"/>
-                        </g>
+                <div class="w-10 h-10 rounded-xl overflow-hidden shadow-[0_8px_16px_-3px_rgba(230,126,34,0.3)] hover:scale-110 transition-all duration-500">
+                    <svg width="40" height="40" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                      <defs>
+                        <!-- Vibrant Sunrise Gradient -->
+                        <linearGradient id="modernBg" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" style="stop-color:#FF9F43;stop-opacity:1" />
+                          <stop offset="100%" style="stop-color:#EE5253;stop-opacity:1" />
+                        </linearGradient>
+                        <!-- Glassmorphism Effect -->
+                        <filter id="glassBlur" x="-20%" y="-20%" width="140%" height="140%">
+                          <feGaussianBlur in="SourceGraphic" stdDeviation="2" />
+                        </filter>
+                        <!-- Glow for the S-trail -->
+                        <filter id="trailGlow">
+                          <feGaussianBlur stdDeviation="3" result="blur" />
+                          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        </filter>
+                      </defs>
+                      <rect width="200" height="200" rx="40" fill="url(#modernBg)"/>
+                      
+                      <!-- Luminous S-Swirl (Modern Style with Full Tapering) -->
+                      <path d="M30 30 C 5 65, 35 145, 100 100 C 165 55, 195 135, 172 172 L 168 168 C 185 145, 155 65, 100 100 C 45 135, 15 55, 30 30 Z" fill="white" opacity="0.15" filter="url(#trailGlow)"/>
+                      <path d="M30 30 C 10 60, 40 140, 100 100 C 160 60, 190 140, 170 170 L 171 170 C 193 140, 163 60, 103 100 C 43 140, 13 60, 33 30 Z" fill="white" opacity="0.4"/>
+                      
+                      <!-- Simplified Stylized Brush -->
+                      <g transform="rotate(-45, 100, 100)">
+                        <!-- Premium Matte Handle -->
+                        <rect x="94" y="65" width="12" height="108" rx="6" fill="#2D3436"/>
+                        <!-- Glass / Chrome Ferrule -->
+                        <rect x="90" y="45" width="20" height="20" rx="4" fill="white" opacity="0.3" filter="url(#glassBlur)"/>
+                        <rect x="90" y="45" width="20" height="20" rx="4" fill="none" stroke="white" stroke-width="0.5" opacity="0.5"/>
+                        <!-- Minimalist Bristle Silhouette -->
+                        <path d="M92 45 Q88 15 100 0 Q112 15 108 45 Z" fill="white"/>
+                        <!-- Tip Polish -->
+                        <circle cx="100" cy="8" r="6" fill="white" opacity="0.4"/>
+                      </g>
+                      
+                      <!-- Dynamic light glints -->
+                      <circle cx="160" cy="40" r="4" fill="white" opacity="0.6"/>
+                      <circle cx="40" cy="160" r="2" fill="white" opacity="0.4"/>
                     </svg>
                 </div>
             </a>
@@ -69,10 +94,10 @@
             <!-- Search & Interactive Tools -->
             <div class="flex-grow max-w-2xl flex items-center gap-2">
                 <form action="/" method="get" class="flex-grow relative group">
-                    <input type="text" name="search" value="{{ search }}" placeholder="Найти вдохновение..." class="w-full bg-[#F8F9FA] border-none rounded-xl px-10 py-2 text-sm focus:ring-2 focus:ring-[#E67E22] outline-none transition-all">
+                    <input type="text" name="search" value="{{ search }}" placeholder="Найти вдохновение..." class="w-full bg-[#F8F9FA] border-none rounded-xl px-10 py-2 text-sm focus:ring-2 focus:ring-[#FF9F43] outline-none transition-all">
                     <div class="absolute left-3 top-1/2 -translate-y-1/2 text-[#BDC3C7]"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg></div>
                 </form>
-                <button onclick="document.getElementById('tags-panel').classList.toggle('open')" class="p-2 text-[#7F8C8D] hover:text-[#E67E22] hover:bg-orange-50 rounded-lg transition-all" title="Категории"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 11h.01M7 15h.01M13 7h.01M13 11h.01M13 15h.01M17 7h.01M17 11h.01M17 15h.01" /></svg></button>
+                <button onclick="document.getElementById('tags-panel').classList.toggle('open')" class="p-2 text-[#7F8C8D] hover:text-[#FF9F43] hover:bg-orange-50 rounded-lg transition-all" title="Категории"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 11h.01M7 15h.01M13 7h.01M13 11h.01M13 15h.01M17 7h.01M17 11h.01M17 15h.01" /></svg></button>
                 <a href="/random" class="surprise-btn p-2 text-[#7F8C8D] hover:bg-orange-50 rounded-lg transition-all flex items-center justify-center" title="МНЕ ПОВЕЗЁТ">
                     <div class="dice-scene"><div class="cube"><div class="cube__face cube__face--1"><div class="pip"></div></div><div class="cube__face cube__face--6"><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div></div><div class="cube__face cube__face--3"><div class="pip"></div><div class="pip"></div><div class="pip"></div></div><div class="cube__face cube__face--4"><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div></div><div class="cube__face cube__face--2"><div class="pip"></div><div class="pip"></div></div><div class="cube__face cube__face--5"><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div></div></div></div>
                 </a>
@@ -80,20 +105,44 @@
 
             <!-- Actions -->
             <div class="flex items-center gap-2">
-                <button class="p-2 text-[#BDC3C7] hover:text-[#E67E22] relative transition-colors" title="Уведомления"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg><span class="absolute top-2 right-2 w-2 h-2 bg-[#E67E22] rounded-full border-2 border-white"></span></button>
+                <button class="p-2 text-[#BDC3C7] hover:text-[#FF9F43] relative transition-colors" title="Уведомления"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg><span class="absolute top-2 right-2 w-2 h-2 bg-[#FF9F43] rounded-full border-2 border-white"></span></button>
                 <div class="h-6 w-[1px] bg-[#F1F2F6] mx-2"></div>
-                {% if user %}<div class="flex items-center gap-3"><div class="w-8 h-8 bg-[#E67E22] rounded-lg flex items-center justify-center text-white font-bold text-xs shadow-md">{{ user.username[0].upper() }}</div><a href="/logout" class="text-[10px] font-bold text-[#BDC3C7] hover:text-[#C0392B] uppercase tracking-widest transition-colors">Выход</a></div>
-                {% else %}<a href="/login" class="text-xs font-bold text-[#7F8C8D] hover:text-[#E67E22] px-2">Войти</a><a href="/register" class="bg-[#E67E22] text-white text-[10px] font-bold px-4 py-2 rounded-lg hover:bg-[#D35400] transition-all uppercase tracking-wider">Регистрация</a>{% endif %}
+                {% if user %}<div class="flex items-center gap-3"><div class="w-8 h-8 bg-[#FF9F43] rounded-lg flex items-center justify-center text-white font-bold text-xs shadow-md">{{ user.username[0].upper() }}</div><a href="/logout" class="text-[10px] font-bold text-[#BDC3C7] hover:text-[#C0392B] uppercase tracking-widest transition-colors">Выход</a></div>
+                {% else %}<a href="/login" class="text-xs font-bold text-[#7F8C8D] hover:text-[#FF9F43] px-2">Войти</a><a href="/register" class="bg-[#FF9F43] text-white text-[10px] font-bold px-4 py-2 rounded-lg hover:bg-[#EE5253] transition-all uppercase tracking-wider">Регистрация</a>{% endif %}
             </div>
         </div>
-        <div id="tags-panel" class="bg-[#F8F9FA] border-b border-[#F1F2F6]"><div class="max-w-6xl mx-auto px-16 py-4 flex flex-wrap gap-2">{% set categories = ['Шахматы', 'Фотография', 'Вархаммер', 'Спорт', 'Кулинария', 'Кодинг', 'Йога', 'Музыка', 'Рисование'] %}{% for cat in categories %}<a href="/?search={{ cat }}" class="px-3 py-1 bg-white border border-[#F1F2F6] rounded-full text-[10px] font-bold text-[#7F8C8D] hover:bg-[#E67E22] hover:text-white hover:border-[#E67E22] transition-all uppercase tracking-tighter">{{ cat }}</a>{% endfor %}</div></div>
+        <div id="tags-panel" class="bg-[#F8F9FA] border-b border-[#F1F2F6]"><div class="max-w-6xl mx-auto px-16 py-4 flex flex-wrap gap-2">{% set categories = ['Шахматы', 'Фотография', 'Вархаммер', 'Спорт', 'Кулинария', 'Кодинг', 'Йога', 'Музыка', 'Рисование'] %}{% for cat in categories %}<a href="/?search={{ cat }}" class="px-3 py-1 bg-white border border-[#F1F2F6] rounded-full text-[10px] font-bold text-[#7F8C8D] hover:bg-[#FF9F43] hover:text-white hover:border-[#FF9F43] transition-all uppercase tracking-tighter">{{ cat }}</a>{% endfor %}</div></div>
     </nav>
 
     <div class="max-w-4xl mx-auto p-6 md:p-12">
         <header class="mb-12 text-center">
             <h1 class="text-6xl md:text-8xl font-bold text-[#2D3436] mb-4 tracking-tighter opacity-90">HobbyHeaven</h1>
-            <p class="text-lg text-[#7F8C8D] font-serif flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 italic"><span>то, что любим</span><span class="hidden md:block text-[#E67E22] opacity-40 font-normal not-italic">•</span><span>там, где делимся</span></p>
+            <p class="text-lg text-[#7F8C8D] font-serif flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 italic"><span>то, что любим</span><span class="hidden md:block text-[#FF9F43] opacity-40 font-normal not-italic">•</span><span>там, где делимся</span></p>
         </header>
+
+        <!-- Post Creation (Only for registered users) -->
+        {% if user %}
+        <div class="mb-16 bg-white rounded-[48px] border border-[#F1F2F6] p-8 shadow-sm">
+            <form action="/create-hobby" method="post" enctype="multipart/form-data" class="space-y-6">
+                <input type="text" name="title" placeholder="Название твоего хобби" class="w-full text-2xl font-bold border-none focus:ring-0 placeholder-[#BDC3C7]" required>
+                <textarea id="editor" name="description"></textarea>
+                
+                <div class="flex flex-wrap gap-4 items-center justify-between pt-4">
+                    <div class="flex gap-4">
+                        <label class="cursor-pointer bg-[#F8F9FA] hover:bg-orange-50 text-[#7F8C8D] hover:text-[#FF9F43] px-6 py-3 rounded-2xl transition-all flex items-center gap-2 font-bold text-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            Фото
+                            <input type="file" name="file" class="hidden" accept="image/*" onchange="previewImage(this, 'createPreview')">
+                        </label>
+                        <input type="text" name="tags" placeholder="Теги (через запятую)" class="bg-[#F8F9FA] border-none rounded-2xl px-6 py-3 text-sm focus:ring-2 focus:ring-orange-100 outline-none w-48 font-medium">
+                    </div>
+                    <button type="submit" class="bg-[#2D3436] hover:bg-[#FF9F43] text-white px-10 py-3 rounded-2xl font-bold transition-all shadow-lg hover:shadow-orange-200">Опубликовать</button>
+                </div>
+                <div id="createPreviewContainer" class="hidden mt-4"><img id="createPreview" class="h-32 w-32 object-cover rounded-2xl border-2 border-orange-100"></div>
+            </form>
+        </div>
+        {% endif %}
+
         <div class="space-y-12">
             {% for hobby in hobbies %}
             <article class="post-card bg-white rounded-[48px] border border-[#F1F2F6] overflow-hidden group">
@@ -103,7 +152,7 @@
                     </div>
                     <div class="p-10 md:p-14 md:w-7/12 flex flex-col justify-between">
                         <div>
-                            <div class="flex justify-between items-center mb-8"><span class="px-4 py-1.5 bg-orange-50 text-[#E67E22] rounded-full text-[10px] font-bold uppercase tracking-widest">{{ hobby.title }}</span><time class="text-[#BDC3C7] text-[10px] font-bold">{{ hobby.created_at.strftime('%d.%m.%Y') }}</time></div>
+                            <div class="flex justify-between items-center mb-8"><span class="px-4 py-1.5 bg-orange-50 text-[#FF9F43] rounded-full text-[10px] font-bold uppercase tracking-widest">{{ hobby.title }}</span><time class="text-[#BDC3C7] text-[10px] font-bold">{{ hobby.created_at.strftime('%d.%m.%Y') }}</time></div>
                             <h3 class="text-3xl font-bold mb-6 text-[#2D3436]">{{ hobby.author_user.username if hobby.author_user else hobby.author }}</h3>
                             <div class="text-[#7F8C8D] font-serif text-lg italic line-clamp-4">{{ hobby.description | safe }}</div>
                         </div>
@@ -112,48 +161,8 @@
             </article>
             {% endfor %}
         </div>
-    </div>
-
     <!-- Image Modal -->
     <div id="imageModal" class="fixed inset-0 bg-[#2D3436]/90 hidden z-[200] p-4 items-center justify-center cursor-zoom-out" onclick="this.classList.add('hidden')"><img id="modalImg" class="max-h-full max-w-full rounded-2xl shadow-2xl"></div>
-
-    <!-- GIANT LOGO TEST AREA (DETAILED REFERENCE) -->
-    <div class="fixed inset-0 flex items-center justify-center z-[150] pointer-events-none">
-        <div class="pointer-events-auto bg-white p-10 rounded-[60px] shadow-2xl border-4 border-orange-100">
-            <div class="w-[400px] h-[400px] flex items-center justify-center">
-                <svg width="400" height="400" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="200" height="200" rx="24" fill="#F5F4FF"/>
-                 
-                  <!-- brush rotated -45°, centered at (100,100) -->
-                  <g transform="rotate(-45, 100, 100)">
-                    <!-- handle -->
-                    <rect x="93" y="56" width="14" height="96" rx="4" fill="#C9946A"/>
-                    <!-- end cap -->
-                    <ellipse cx="100" cy="150" rx="7" ry="3.5" fill="#A87450"/>
-                    <!-- grain -->
-                    <line x1="97" y1="62" x2="97" y2="147" stroke="#A87450" stroke-width="0.8" opacity="0.45"/>
-                    <line x1="103" y1="62" x2="103" y2="147" stroke="#A87450" stroke-width="0.8" opacity="0.35"/>
-                    <!-- ferrule -->
-                    <rect x="90" y="42" width="20" height="16" rx="3" fill="#C0BEB6"/>
-                    <rect x="90" y="54" width="20" height="3" rx="1" fill="#9A9892"/>
-                    <!-- bristles (limit slimness, elongated tip -4) -->
-                    <path d="M96 42 Q81 18 100 -4"   stroke="#2C2C2A" stroke-width="1.1" fill="none" stroke-linecap="round"/>
-                    <path d="M97.3 42 Q88 18 100 -4"   stroke="#3d3d3a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-                    <path d="M98.6 42 Q94 18 100 -4"   stroke="#2C2C2A" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-                    <path d="M100 42 Q100 18 100 -4"    stroke="#3d3d3a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-                    <path d="M101.4 42 Q106 18 100 -4"  stroke="#2C2C2A" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-                    <path d="M102.7 42 Q112 18 100 -4"  stroke="#3d3d3a" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-                    <path d="M104 42 Q119 18 100 -4"   stroke="#2C2C2A" stroke-width="1.1" fill="none" stroke-linecap="round"/>
-                  </g>
-                 
-                  <!-- subtle corner sparkle -->
-                  <circle cx="158" cy="42" r="3" fill="#7F77DD" opacity="0.35"/>
-                  <circle cx="168" cy="32" r="2" fill="#AFA9EC" opacity="0.3"/>
-                  <circle cx="174" cy="48" r="1.5" fill="#534AB7" opacity="0.25"/>
-                </svg>
-            </div>
-        </div>
-    </div>
 
     <script>
         ClassicEditor.create(document.querySelector('#editor'), { toolbar: [ 'bold', 'italic', 'link', 'bulletedList', 'numberedList' ], placeholder: 'Поделись своей страстью...' }).catch(error => console.error(error));
