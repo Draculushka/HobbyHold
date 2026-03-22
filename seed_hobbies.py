@@ -1,6 +1,4 @@
-import os
 import random
-from sqlalchemy.orm import Session
 from app.database import SessionLocal
 from app.models import Hobby, Tag
 from datetime import datetime, timezone
@@ -89,28 +87,28 @@ def seed_data():
         while current_count < total_needed:
             # Выбираем случайное хобби из списка или генерируем вариацию
             base_hobby, cat = random.choice(all_base_hobbies)
-            
+
             # Если мы уже добавили много, начнем добавлять вариации (например "Продвинутый футбол")
             if current_count >= len(all_base_hobbies):
                 prefix = random.choice(["Продвинутый", "Любительский", "Экстремальный", "Утренний", "Вечерний", "Профессиональный"])
                 title = f"{prefix} {base_hobby}"
             else:
                 title = base_hobby
-            
+
             # Проверка на дубликаты в базе (опционально, но лучше для чистоты)
             # if db.query(Hobby).filter(Hobby.title == title).first():
             #     continue
 
             description = f"Это увлекательное занятие в категории {cat}. Помогает расслабиться и найти единомышленников. " \
                           f"Многие выбирают {title} как основной способ самовыражения."
-            
+
             hobby = Hobby(
                 title=title,
                 description=description,
                 author=random.choice(authors),
                 created_at=datetime.now(timezone.utc)
             )
-            
+
             # Привязываем теги
             hobby.tags.append(tag_objects[cat])
             # Добавляем случайный дополнительный тег

@@ -1,11 +1,14 @@
+import logging
 from datetime import datetime, timezone, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from fastapi import Request, Depends, HTTPException, status
+from fastapi import Request, Depends
 from sqlalchemy.orm import Session
 from database import get_db
 from models import User
 from core.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+
+logger = logging.getLogger(__name__)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -32,7 +35,8 @@ async def get_current_user(request: Request, db: Session = Depends(get_db)) -> U
         email: str = payload.get("sub")
         if email is None:
             return None
-    except JWTError:
+    except JWTError as e:
+        logger.warning("JWT validation error: %s", e)
         return None
-    user = db.query(User).filter(User.email == email).first()
+    user = db.query(User).filter(User.email == email, User.deleted_at.is_(None), User.is_active.is_(True)).first()
     return user
