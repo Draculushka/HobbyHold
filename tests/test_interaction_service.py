@@ -1,4 +1,3 @@
-import pytest
 from sqlalchemy.orm import Session
 from models import User, Persona, Hobby, Comment
 from services.interaction_service import add_comment, update_comment, delete_comment, toggle_reaction
