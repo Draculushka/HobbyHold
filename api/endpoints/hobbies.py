@@ -13,6 +13,42 @@ from models import User
 router = APIRouter()
 
 
+@router.get("/debug-p")
+def debug_p():
+    return {"status": "ok", "message": "Hobbies router is active"}
+
+
+@router.get("/p/{hobby_id}")
+def post_detail(
+    hobby_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    from models import Comment, Reaction
+    if current_user:
+        db.refresh(current_user)
+        current_user = db.query(User).options(
+            joinedload(User.active_persona),
+            joinedload(User.personas)
+        ).filter(User.id == current_user.id).first()
+
+    hobby = db.query(Hobby).options(
+        joinedload(Hobby.author_persona),
+        joinedload(Hobby.tags),
+        joinedload(Hobby.comments).joinedload(Comment.author_persona),
+        joinedload(Hobby.reactions).joinedload(Reaction.author_persona)
+    ).filter(Hobby.id == hobby_id).first()
+
+    if not hobby:
+        raise HTTPException(status_code=404, detail="Hobby not found")
+
+    return templates.TemplateResponse(
+        "post_detail.html",
+        {"request": request, "hobby": hobby, "user": current_user}
+    )
+
+
 @router.get("/")
 def home(
     request: Request,
@@ -39,11 +75,20 @@ def home(
 
 
 @router.get("/random")
-def get_random_hobby(db: Session = Depends(get_db)):
-    title = hobby_service.get_random_hobby_title(db)
-    if not title:
-        return RedirectResponse("/", status_code=status.HTTP_303_SEE_OTHER)
-    return RedirectResponse(f"/?search={title}", status_code=status.HTTP_303_SEE_OTHER)
+def get_random_hobby(request: Request, db: Session = Depends(get_db)):
+    from models import Hobby
+    from sqlalchemy.sql.expression import func
+    from sqlalchemy import or_
+
+    # Fetch 20 random hobbies that have either an image or a video
+    random_hobbies = db.query(Hobby).filter(
+        or_(Hobby.image_path.isnot(None), Hobby.video_path.isnot(None))
+    ).order_by(func.random()).limit(20).all()
+
+    return templates.TemplateResponse(
+        "explore.html",
+        {"request": request, "hobbies": random_hobbies}
+    )
 
 
 @router.post("/create-hobby")

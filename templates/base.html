@@ -39,19 +39,24 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
     <style>
         h1, h2, h3, .font-serif { font-family: 'Lora', serif; }
+        .vjs-big-play-button { top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; border-radius: 50% !important; width: 3em !important; height: 3em !important; line-height: 3em !important; background-color: rgba(255, 159, 67, 0.8) !important; border: none !important; }
+        .video-js:hover .vjs-big-play-button { background-color: #FF9F43 !important; }
     </style>
     {% block head %}{% endblock %}
-</head>
-<body class="font-sans text-dark antialiased bg-cream {% block body_class %}{% endblock %}">
+    </head>
+    <body class="font-sans text-dark antialiased bg-cream {% block body_class %}{% endblock %}">
     <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[999] focus:bg-primary focus:text-white focus:px-4 focus:py-2 focus:rounded-lg">Перейти к содержимому</a>
     {% block nav %}{% endblock %}
     <main id="main-content">
         {% block content %}{% endblock %}
     </main>
-    {% block footer %}{% endblock %}
+    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
     <script src="/static/js/app.js"></script>
     {% block scripts %}{% endblock %}
-</body>
+    </body>
+    </html>
+
 </html>

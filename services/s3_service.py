@@ -1,6 +1,6 @@
 import boto3
 from botocore.exceptions import ClientError
-from core.config import S3_ENDPOINT, S3_ACCESS_KEY, S3_SECRET_KEY, S3_BUCKET, S3_PUBLIC_URL
+from core.config import S3_ENDPOINT, S3_ACCESS_KEY, S3_SECRET_KEY, S3_BUCKET, S3_PUBLIC_URL, CDN_URL
 import logging
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ s3_client = boto3.client(
 
 def upload_file_to_s3(file_obj, object_name: str, content_type: str = None) -> str:
     """
-    Uploads a file object to S3 and returns the public URL.
+    Uploads a file object to S3 and returns the public URL (optionally via CDN).
     """
     extra_args = {}
     if content_type:
@@ -31,8 +31,14 @@ def upload_file_to_s3(file_obj, object_name: str, content_type: str = None) -> s
             object_name,
             ExtraArgs=extra_args
         )
-        # Return the public URL
-        return f"{S3_PUBLIC_URL}/{object_name}"
+        
+        # Determine the public URL (direct S3 or CDN)
+        if CDN_URL:
+            # If CDN_URL is set, we assume it serves the bucket directly
+            return f"{CDN_URL.rstrip('/')}/{object_name}"
+        else:
+            # Fallback to direct S3 URL
+            return f"{S3_PUBLIC_URL.rstrip('/')}/{object_name}"
     except ClientError as e:
         logger.error(f"Failed to upload {object_name} to S3: {e}")
         raise

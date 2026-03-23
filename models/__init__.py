@@ -59,6 +59,7 @@ class Hobby(Base):
     description = Column(Text)
     persona_id = Column(Integer, ForeignKey("personas.id"), nullable=False, index=True)
     image_path = Column(String)
+    video_path = Column(String)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), index=True)
 
     # Связь с автором-персоной

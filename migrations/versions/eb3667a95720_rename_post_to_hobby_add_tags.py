@@ -25,6 +25,7 @@ def upgrade() -> None:
     # В PostgreSQL индексы при переименовании таблицы сохраняются, но их имена могут остаться старыми.
     op.execute("ALTER INDEX ix_posts_id RENAME TO ix_hobbies_id")
     op.execute("ALTER TABLE hobbies RENAME CONSTRAINT posts_pkey TO hobbies_pkey")
+    op.execute("ALTER TABLE hobbies RENAME CONSTRAINT posts_author_id_fkey TO hobbies_author_id_fkey")
 
     # Создаем таблицу tags
     op.create_table('tags',

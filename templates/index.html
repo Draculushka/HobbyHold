@@ -217,24 +217,26 @@
     <!-- Hobby Feed -->
     <h2 class="sr-only">Лента публикаций</h2>
     {% set user_persona_ids = (user.personas | map(attribute='id') | list) if user else [] %}
-    <div class="space-y-12">
+    <div id="feed-container" class="max-w-2xl mx-auto space-y-16">
         {% for hobby in hobbies %}
-        <article class="post-card bg-white rounded-card-lg border border-border overflow-hidden group">
-            <div class="flex flex-col md:flex-row {{ 'md:flex-row-reverse' if loop.index0 % 2 == 1 }}">
+        <article class="post-card bg-white rounded-card-lg border border-border overflow-hidden group hover:shadow-lg transition-shadow duration-500">
+            <div class="flex flex-col">
+                <!-- Media Section (Top) -->
                 {% if hobby.video_path %}
-                <div class="md:w-5/12 relative aspect-[4/3] md:aspect-[3/4] bg-dark">
-                    <video-js id="video-{{ hobby.id }}" class="vjs-theme-city vjs-big-play-centered w-full h-full" controls preload="auto" width="100%" height="100%">
+                <div class="w-full relative bg-dark" style="max-height: 60vh;">
+                    <video-js id="video-{{ hobby.id }}" class="vjs-theme-city vjs-big-play-centered w-full h-full object-contain" controls preload="auto" style="max-height: 60vh;">
                         <source src="{{ hobby.video_path }}" type="application/x-mpegURL">
                     </video-js>
                 </div>
                 {% elif hobby.image_path %}
-                <div class="md:w-5/12 relative overflow-hidden aspect-[4/3] md:aspect-[3/4]">
+                <a href="/p/{{ hobby.id }}" class="block w-full relative overflow-hidden bg-surface" style="max-height: 60vh;">
                     <img src="{% if hobby.image_path.startswith('http') %}{{ hobby.image_path }}{% else %}/uploads/{{ hobby.image_path }}{% endif %}" alt="{{ hobby.title }}" loading="lazy"
-                         class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 cursor-pointer"
-                         onclick="openImage(this.src)" tabindex="0" role="button" onkeydown="if(event.key==='Enter')openImage(this.src)">
-                </div>
+                         class="w-full h-full object-cover object-center transition-transform duration-1000 group-hover:scale-105" style="max-height: 60vh;">
+                </a>
                 {% endif %}
-                <div class="p-8 md:p-14 {{ 'md:w-7/12' if (hobby.image_path or hobby.video_path) else 'w-full' }} flex flex-col justify-between">
+
+                <!-- Content Section (Bottom) -->
+                <div class="p-8 md:p-10 w-full flex flex-col justify-between">
                     <div>
                         <div class="flex justify-between items-center mb-8">
                             <span class="px-4 py-1.5 bg-orange-50 text-primary rounded-full text-[10px] font-bold uppercase tracking-widest font-sans">{{ hobby.title }}</span>
@@ -254,7 +256,10 @@
                                 {{ hobby.author_persona.username }}
                             </a>
                         </div>
-                        <div class="text-muted font-serif text-lg italic line-clamp-4 mb-8">{{ hobby.description | sanitize }}</div>
+                        <a href="/p/{{ hobby.id }}" class="block mb-8 group/text">
+                            <div class="text-muted font-serif text-lg leading-relaxed line-clamp-3 mb-4 group-hover/text:text-dark transition-colors">{{ hobby.description | striptags }}</div>
+                            <span class="text-primary font-bold text-sm tracking-wide uppercase">Читать историю &rarr;</span>
+                        </a>
 
                         <!-- Взаимодействия (Лайки и Комменты) -->
                         <div class="flex flex-wrap items-center gap-3 pt-6 border-t border-border">
@@ -354,14 +359,57 @@
     </div>
 
     <!-- Pagination -->
-    {% if next_cursor %}
-    <div class="mt-16 flex justify-center">
-        <a href="/?cursor={{ next_cursor }}{% if search %}&search={{ search }}{% endif %}" class="px-8 py-3 bg-white border border-border rounded-2xl text-sm font-bold text-dark hover:text-primary hover:border-primary shadow-sm hover:shadow-md transition-all">
-            Загрузить еще
-        </a>
+    <div id="pagination-container">
+        {% if next_cursor %}
+        <div class="mt-16 flex justify-center">
+            <a href="/?cursor={{ next_cursor }}{% if search %}&search={{ search }}{% endif %}" 
+               onclick="loadMorePosts(event, '{{ next_cursor }}', '{{ search }}')"
+               class="px-8 py-3 bg-white border border-border rounded-2xl text-sm font-bold text-dark hover:text-primary hover:border-primary shadow-sm hover:shadow-md transition-all">
+                Загрузить еще
+            </a>
+        </div>
+        {% endif %}
     </div>
-    {% endif %}
 </div>
+
+<!-- Skeleton Template -->
+<template id="skeleton-template">
+    <article class="post-card bg-white rounded-card-lg border border-border overflow-hidden animate-pulse skeleton-card">
+        <div class="flex flex-col md:flex-row">
+            <!-- Скелет изображения/видео -->
+            <div class="md:w-5/12 relative aspect-[4/3] md:aspect-[3/4] bg-surface"></div>
+            <!-- Скелет контента -->
+            <div class="p-8 md:p-14 md:w-7/12 w-full flex flex-col justify-between">
+                <div>
+                    <!-- Теги и дата -->
+                    <div class="flex justify-between items-center mb-8">
+                        <div class="h-6 bg-surface rounded-full w-24"></div>
+                        <div class="h-4 bg-surface rounded w-16"></div>
+                    </div>
+                    <!-- Заголовок -->
+                    <div class="h-8 bg-surface rounded w-3/4 mb-4"></div>
+                    <!-- Автор -->
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 bg-surface rounded-full"></div>
+                        <div class="h-5 bg-surface rounded w-32"></div>
+                    </div>
+                    <!-- Описание -->
+                    <div class="space-y-3 mb-8">
+                        <div class="h-4 bg-surface rounded w-full"></div>
+                        <div class="h-4 bg-surface rounded w-full"></div>
+                        <div class="h-4 bg-surface rounded w-5/6"></div>
+                    </div>
+                    <!-- Кнопки лайков -->
+                    <div class="flex gap-3 pt-6 border-t border-border">
+                        <div class="h-10 w-16 bg-surface rounded-full"></div>
+                        <div class="h-10 w-16 bg-surface rounded-full"></div>
+                        <div class="h-10 w-16 bg-surface rounded-full"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </article>
+</template>
 
 <!-- Image Modal -->
 <div id="imageModal" role="dialog" aria-modal="true" aria-label="Просмотр изображения" tabindex="-1"
@@ -372,6 +420,62 @@
 
 {% block scripts %}
 <script>
+    async function loadMorePosts(event, cursor, search) {
+        event.preventDefault();
+        const feedContainer = document.getElementById('feed-container');
+        const paginationContainer = document.getElementById('pagination-container');
+        const skeletonHTML = document.getElementById('skeleton-template').innerHTML;
+
+        // Show 2 skeletons
+        feedContainer.insertAdjacentHTML('beforeend', skeletonHTML);
+        feedContainer.insertAdjacentHTML('beforeend', skeletonHTML);
+        
+        // Hide button during load
+        paginationContainer.style.display = 'none';
+
+        try {
+            const url = `/?cursor=${cursor}${search ? '&search=' + encodeURIComponent(search) : ''}`;
+            const response = await fetch(url);
+            const html = await response.text();
+            
+            // Parse new HTML
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // Remove skeletons
+            document.querySelectorAll('.skeleton-card').forEach(el => el.remove());
+            
+            // Append new posts
+            const newPosts = doc.querySelectorAll('#feed-container .post-card:not(.skeleton-card)');
+            newPosts.forEach(post => feedContainer.appendChild(post));
+            
+            // Update pagination
+            const newPagination = doc.getElementById('pagination-container');
+            if (newPagination && newPagination.innerHTML.trim() !== '') {
+                paginationContainer.innerHTML = newPagination.innerHTML;
+                paginationContainer.style.display = 'block';
+            } else {
+                paginationContainer.innerHTML = ''; // No more posts
+            }
+            
+            // Initialize new video players if any exist
+            if (typeof videojs !== 'undefined') {
+                newPosts.forEach(post => {
+                    const videoEl = post.querySelector('video-js');
+                    if (videoEl && !videoEl.classList.contains('vjs-has-started')) {
+                        videojs(videoEl);
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error loading more posts:', error);
+            // Revert on error
+            document.querySelectorAll('.skeleton-card').forEach(el => el.remove());
+            paginationContainer.style.display = 'block';
+            alert('Ошибка при загрузке постов. Попробуйте еще раз.');
+        }
+    }
+
     {% if user %}
     ClassicEditor.create(document.querySelector('#editor'), {
         toolbar: ['bold', 'italic', 'link', 'bulletedList', 'numberedList'],

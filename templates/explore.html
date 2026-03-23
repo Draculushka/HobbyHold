@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Вдохновение - HobbyHold{% endblock %}
+
+{% block nav %}
+<nav class="sticky top-0 z-50 bg-cream/80 backdrop-blur-md border-b border-border">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        <div class="flex items-center gap-6">
+            <a href="/" class="text-3xl font-black tracking-tighter text-dark">HH.</a>
+            <span class="text-muted font-serif italic hidden md:inline">вдохновение</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <a href="/" class="p-2 text-muted hover:text-primary transition-colors" title="На главную" aria-label="На главную">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+            </a>
+            <a href="/random" class="p-2 text-primary hover:bg-orange-50 rounded-full transition-colors flex items-center gap-2" title="Обновить" aria-label="Обновить ленту">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+            </a>
+        </div>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[200px]">
+        {% for hobby in hobbies %}
+            
+            {# 
+               Logic for Bento Grid sizing:
+               - Every 7th item is a large feature square (takes 2x2 grid slots)
+               - Every 5th item is a tall portrait (takes 1x2 slots, good for vertical videos)
+               - Others are normal squares (1x1)
+            #}
+            
+            {% set is_large = loop.index0 % 7 == 0 %}
+            {% set is_tall = loop.index0 % 5 == 0 and not is_large %}
+            
+            {% set span_classes = 'col-span-1 row-span-1' %}
+            {% if is_large %}
+                {% set span_classes = 'col-span-2 row-span-2' %}
+            {% elif is_tall %}
+                {% set span_classes = 'col-span-1 row-span-2' %}
+            {% endif %}
+
+            <a href="/p/{{ hobby.id }}" class="{{ span_classes }} relative group overflow-hidden rounded-2xl bg-surface shadow-sm hover:shadow-xl transition-all duration-500 block">
+                
+                {% if hobby.video_path %}
+                <video src="{{ hobby.video_path }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" muted loop autoplay playsinline></video>
+                <div class="absolute top-3 right-3 bg-dark/50 backdrop-blur-sm p-1.5 rounded-full text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" /></svg>
+                </div>
+                {% elif hobby.image_path %}
+                <img src="{% if hobby.image_path.startswith('http') %}{{ hobby.image_path }}{% else %}/uploads/{{ hobby.image_path }}{% endif %}" alt="{{ hobby.title }}" loading="lazy" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                {% endif %}
+
+                <!-- Hover Overlay -->
+                <div class="absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                    <h3 class="text-white font-bold text-lg md:text-xl leading-tight line-clamp-2 mb-2 translate-y-4 group-hover:translate-y-0 transition-transform duration-300">{{ hobby.title }}</h3>
+                    <div class="flex items-center gap-2 text-white/80 text-sm translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-75">
+                        <span class="font-medium">{{ hobby.author_persona.username }}</span>
+                    </div>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+    
+    {% if not hobbies %}
+    <div class="text-center py-32">
+        <p class="text-muted font-serif text-xl italic mb-4">Пока нет постов с фото или видео.</p>
+        <a href="/" class="text-primary font-bold hover:underline">Вернуться в ленту</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

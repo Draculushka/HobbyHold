@@ -23,6 +23,10 @@ S3_SECRET_KEY = os.getenv("S3_SECRET_KEY", "minioadmin")
 S3_BUCKET = os.getenv("S3_BUCKET", "hobbyhold")
 S3_PUBLIC_URL = os.getenv("S3_PUBLIC_URL", "http://localhost:9000/hobbyhold")
 
+# --- CDN Settings ---
+# If CDN_URL is set (e.g., https://cdn.hobbyhold.com), it will be used to serve images
+CDN_URL = os.getenv("CDN_URL", "")
+
 ALLOWED_TAGS = ['b', 'i', 'em', 'strong', 'a', 'ul', 'ol', 'li', 'p', 'br', 'h2', 'h3', 'blockquote']
 ALLOWED_ATTRS = {'a': ['href', 'title', 'target']}
 ALLOWED_PROTOCOLS = ['http', 'https', 'mailto']
