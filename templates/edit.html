@@ -45,8 +45,13 @@
 
     <!-- Edit Form -->
     <section class="mb-20">
+        {% if error %}
+        <div class="max-w-4xl mx-auto mb-10 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-xl shadow-sm" role="alert">
+            <p class="font-bold">Ошибка: {{ error }}</p>
+        </div>
+        {% endif %}
         <div class="bg-white p-8 md:p-10 rounded-card border border-border shadow-sm">
-            <form action="/update/{{ hobby.id }}" method="post" enctype="multipart/form-data" class="space-y-8">
+            <form action="/update/{{ hobby.id }}" method="post" enctype="multipart/form-data" class="space-y-10" onsubmit="handleUploadState('editSubmitBtn')">
                 <input type="hidden" name="csrftoken" value="{{ request.scope.get('csrftoken', '') }}">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div class="space-y-2">
@@ -91,7 +96,7 @@
                         <a href="/" class="flex-1 md:flex-none text-center bg-surface text-muted font-bold px-8 py-4 rounded-2xl hover:bg-border transition-all">
                             Отмена
                         </a>
-                        <button class="flex-1 md:flex-none bg-primary-dark text-white font-bold px-10 py-4 rounded-2xl hover:bg-primary-deep shadow-lg shadow-orange-200 transition-all active:scale-95" type="submit">
+                        <button id="editSubmitBtn" class="flex-1 md:flex-none bg-primary-dark text-white font-bold px-10 py-4 rounded-2xl hover:bg-primary-deep shadow-lg shadow-orange-200 transition-all active:scale-95" type="submit">
                             Сохранить изменения
                         </button>
                     </div>

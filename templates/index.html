@@ -172,10 +172,28 @@
         </p>
     </header>
 
+    {% if error %}
+    <div class="max-w-2xl mx-auto mb-10 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-r-xl shadow-sm animate-bounce-short" role="alert">
+        <div class="flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+            <p class="font-bold">Ошибка: {{ error }}</p>
+        </div>
+    </div>
+    <style>
+        @keyframes bounce-short {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .animate-bounce-short { animation: bounce-short 0.5s ease-in-out 2; }
+    </style>
+    {% endif %}
+
     <!-- Post Creation (Only for registered users) -->
     {% if user %}
     <section class="mb-16 bg-white rounded-card-lg border border-border p-8 shadow-sm" aria-label="Создание публикации">
-        <form action="/create-hobby" method="post" enctype="multipart/form-data" class="space-y-6">
+        <form action="/create-hobby" method="post" enctype="multipart/form-data" class="space-y-6" onsubmit="handleUploadState('submitBtn')">
             <input type="hidden" name="csrftoken" value="{{ request.scope.get('csrftoken', '') }}">
             <div class="flex items-center gap-4 mb-4">
                 <label for="persona-select" class="sr-only">Выбрать персону</label>
@@ -200,15 +218,22 @@
                     <label class="cursor-pointer bg-surface hover:bg-orange-50 text-muted hover:text-primary px-6 py-3 rounded-2xl transition-all flex items-center gap-2 font-bold text-sm">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                         Видео
-                        <input type="file" name="video" class="hidden" accept="video/*">
+                        <input type="file" name="video" class="hidden" accept="video/*" onchange="previewVideo(this, 'createVideoPreview')">
                     </label>
                     <label for="hobby-tags" class="sr-only">Теги</label>
                     <input id="hobby-tags" type="text" name="tags_input" placeholder="Теги (через запятую)" class="bg-surface border-none rounded-2xl px-6 py-3 text-sm focus:ring-2 focus:ring-orange-100 outline-none w-48 font-medium">
                 </div>
-                <button type="submit" class="bg-dark hover:bg-primary text-white px-10 py-3 rounded-2xl font-bold transition-all shadow-lg hover:shadow-orange-200">Опубликовать</button>
+                <button id="submitBtn" type="submit" class="bg-dark hover:bg-primary text-white px-10 py-3 rounded-2xl font-bold transition-all shadow-lg hover:shadow-orange-200">Опубликовать</button>
             </div>
-            <div id="createPreviewContainer" class="hidden mt-4">
-                <img id="createPreview" class="h-32 w-32 object-cover rounded-2xl border-2 border-orange-100" alt="Предпросмотр изображения" width="128" height="128">
+            <div class="flex gap-4 mt-4">
+                <div id="createPreviewContainer" class="hidden relative">
+                    <img id="createPreview" class="h-32 w-32 object-cover rounded-2xl border-2 border-orange-100" alt="Предпросмотр изображения" width="128" height="128">
+                    <div class="absolute -top-2 -right-2 bg-primary text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm uppercase tracking-tighter">Фото выбрано</div>
+                </div>
+                <div id="createVideoPreviewContainer" class="hidden relative">
+                    <video id="createVideoPreview" class="h-32 w-32 object-cover rounded-2xl border-2 border-orange-100 bg-dark" autoplay muted loop></video>
+                    <div class="absolute -top-2 -right-2 bg-primary text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm uppercase tracking-tighter">Видео выбрано</div>
+                </div>
             </div>
         </form>
     </section>

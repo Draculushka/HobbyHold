@@ -54,6 +54,7 @@ def home(
     request: Request,
     cursor: Optional[int] = None,
     search: str = "",
+    error: Optional[str] = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -70,7 +71,7 @@ def home(
     hobbies, next_cursor = hobby_service.search_hobbies(db, search, cursor, limit)
     return templates.TemplateResponse(
         "index.html",
-        {"request": request, "hobbies": hobbies, "next_cursor": next_cursor, "search": search, "user": current_user}
+        {"request": request, "hobbies": hobbies, "next_cursor": next_cursor, "search": search, "user": current_user, "error": error}
     )
 
 
@@ -124,7 +125,13 @@ def create_hobby(
         if not persona:
             raise HTTPException(status_code=403, detail="Invalid persona")
 
-    hobby_service.create_hobby(db, persona_id, title, description, tags_input, image, video)
+    try:
+        hobby_service.create_hobby(db, persona_id, title, description, tags_input, image, video)
+    except HTTPException as e:
+        return RedirectResponse(f"/?error={e.detail}", status_code=status.HTTP_303_SEE_OTHER)
+    except Exception as e:
+        return RedirectResponse(f"/?error=Произошла системная ошибка: {str(e)}", status_code=status.HTTP_303_SEE_OTHER)
+        
     return RedirectResponse("/", status_code=status.HTTP_303_SEE_OTHER)
 
 
@@ -132,6 +139,7 @@ def create_hobby(
 def edit_hobby_page(
     hobby_id: int,
     request: Request,
+    error: Optional[str] = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -149,7 +157,7 @@ def edit_hobby_page(
     tags_str = ", ".join([t.name for t in hobby.tags])
     return templates.TemplateResponse(
         "edit.html",
-        {"request": request, "hobby": hobby, "tags_str": tags_str, "user": current_user}
+        {"request": request, "hobby": hobby, "tags_str": tags_str, "user": current_user, "error": error}
     )
 
 
@@ -170,7 +178,13 @@ def update_hobby(
     if not hobby or hobby.author_persona.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
-    hobby_service.update_hobby(db, hobby, title, description, tags_input, image)
+    try:
+        hobby_service.update_hobby(db, hobby, title, description, tags_input, image)
+    except HTTPException as e:
+        return RedirectResponse(f"/edit/{hobby_id}?error={e.detail}", status_code=status.HTTP_303_SEE_OTHER)
+    except Exception as e:
+        return RedirectResponse(f"/edit/{hobby_id}?error=Ошибка обновления: {str(e)}", status_code=status.HTTP_303_SEE_OTHER)
+
     return RedirectResponse("/", status_code=status.HTTP_303_SEE_OTHER)
 
 

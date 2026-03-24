@@ -25,12 +25,15 @@ def save_upload_video(file) -> str | None:
     filename = f"raw_{uuid.uuid4().hex}{ext}"
     path = UPLOAD_DIR / filename
 
-    content = file.file.read()
-    if len(content) > MAX_VIDEO_SIZE:
-        raise HTTPException(status_code=400, detail="Видео слишком тяжелое. Максимум 50 МБ")
+    try:
+        content = file.file.read()
+        if len(content) > MAX_VIDEO_SIZE:
+            raise HTTPException(status_code=400, detail="Видео слишком тяжелое. Максимум 50 МБ")
 
-    with open(path, "wb") as f:
-        f.write(content)
+        with open(path, "wb") as f:
+            f.write(content)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Ошибка при сохранении видео: {str(e)}")
 
     return filename
 
@@ -64,23 +67,28 @@ def save_upload_image(file) -> str | None:
     ext = os.path.splitext(file.filename)[1].lower()
     if ext not in ALLOWED_EXTENSIONS:
         raise HTTPException(status_code=400, detail="Недопустимый формат файла. Разрешены: JPG, PNG, GIF, WebP")
-    # Read and check size
-    content = file.file.read()
-    if len(content) > MAX_FILE_SIZE:
-        raise HTTPException(status_code=400, detail="Файл слишком большой. Максимум 5 МБ")
-    if not _check_magic_bytes(content, ext):
-        raise HTTPException(status_code=400, detail="Содержимое файла не соответствует формату")
+    
+    try:
+        # Read and check size
+        content = file.file.read()
+        if len(content) > MAX_FILE_SIZE:
+            raise HTTPException(status_code=400, detail="Файл слишком большой. Максимум 5 МБ")
+        if not _check_magic_bytes(content, ext):
+            raise HTTPException(status_code=400, detail="Содержимое файла не соответствует формату")
 
-    file.file.seek(0)
-    filename = f"{uuid.uuid4().hex}{ext}"
+        file.file.seek(0)
+        filename = f"{uuid.uuid4().hex}{ext}"
 
-    # Upload to S3 instead of local disk
-    # We pass the content type based on the file type provided by FastAPI (or fallback)
-    content_type = file.content_type if hasattr(file, "content_type") else None
+        # Upload to S3 instead of local disk
+        content_type = file.content_type if hasattr(file, "content_type") else None
 
-    # upload_file_to_s3 returns the full public URL, which is what we will now store in the DB
-    public_url = upload_file_to_s3(file.file, filename, content_type)
-    return public_url
+        # upload_file_to_s3 returns the full public URL
+        public_url = upload_file_to_s3(file.file, filename, content_type)
+        return public_url
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Ошибка при загрузке изображения: {str(e)}")
 
 
 def delete_image(image_url: str):
