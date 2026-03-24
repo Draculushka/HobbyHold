@@ -131,7 +131,7 @@ def create_hobby(
         return RedirectResponse(f"/?error={e.detail}", status_code=status.HTTP_303_SEE_OTHER)
     except Exception as e:
         return RedirectResponse(f"/?error=Произошла системная ошибка: {str(e)}", status_code=status.HTTP_303_SEE_OTHER)
-        
+
     return RedirectResponse("/", status_code=status.HTTP_303_SEE_OTHER)
 
 

@@ -67,7 +67,7 @@ def save_upload_image(file) -> str | None:
     ext = os.path.splitext(file.filename)[1].lower()
     if ext not in ALLOWED_EXTENSIONS:
         raise HTTPException(status_code=400, detail="Недопустимый формат файла. Разрешены: JPG, PNG, GIF, WebP")
-    
+
     try:
         # Read and check size
         content = file.file.read()
