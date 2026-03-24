@@ -264,7 +264,6 @@
                 <div class="p-8 md:p-10 w-full flex flex-col justify-between">
                     <div>
                         <div class="flex justify-between items-center mb-8">
-                            <span class="px-4 py-1.5 bg-orange-50 text-primary rounded-full text-[10px] font-bold uppercase tracking-widest font-sans">{{ hobby.title }}</span>
                             <time class="text-subtle text-[10px] font-bold font-sans" datetime="{{ hobby.created_at.isoformat() }}">{{ hobby.created_at.strftime('%d.%m.%Y') }}</time>
                         </div>
                         <h3 class="text-xl font-bold text-dark mb-4 font-sans">{{ hobby.title }}</h3>
@@ -350,19 +349,25 @@
                             </div>
                             
                             {% if user %}
-                            <div class="space-y-2">
-                                <div class="text-[10px] font-bold text-primary uppercase tracking-widest px-1">
-                                    {% if user.active_persona %}
-                                        {{ user.active_persona.username }}
+                            <div class="space-y-3 pt-4 border-t border-border/50">
+                                <div class="flex items-center justify-between px-1">
+                                    <span class="text-[10px] font-bold text-muted uppercase tracking-widest">Комментировать как:</span>
+                                    {% if user.personas|length > 1 %}
+                                    <select id="comment-persona-{{ hobby.id }}" class="text-[10px] bg-surface border-none rounded-md px-2 py-1 outline-none focus:ring-1 focus:ring-primary cursor-pointer font-bold text-primary">
+                                        {% for persona in user.personas %}
+                                        <option value="{{ persona.id }}" {{ 'selected' if persona.id == user.active_persona_id }}>{{ persona.username }}</option>
+                                        {% endfor %}
+                                    </select>
                                     {% else %}
-                                        {% set active_p = user.personas | selectattr("id", "equalto", user.active_persona_id) | first %}
-                                        {{ active_p.username if active_p else '...' }}
+                                    <span class="text-[10px] font-bold text-primary">{{ user.active_persona.username if user.active_persona else '...' }}</span>
+                                    <input type="hidden" id="comment-persona-{{ hobby.id }}" value="{{ user.active_persona_id }}">
                                     {% endif %}
                                 </div>
                                 <div class="flex gap-2">
                                     <input type="text" id="comment-input-{{ hobby.id }}" placeholder="Написать комментарий..." 
-                                           class="flex-grow bg-surface border-none rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary outline-none transition-all">
-                                    <button onclick="addComment({{ hobby.id }})" class="bg-primary text-white p-2 rounded-xl hover:bg-primary-dark transition-all">
+                                           class="flex-grow bg-surface border-none rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
+                                           onkeydown="if(event.key==='Enter') addComment({{ hobby.id }})">
+                                    <button onclick="addComment({{ hobby.id }})" class="bg-primary text-white p-2 rounded-xl hover:bg-primary-dark transition-all shadow-sm">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                             <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
                                         </svg>
@@ -649,8 +654,10 @@
 
     async function addComment(hobbyId) {
         const input = document.getElementById(`comment-input-${hobbyId}`);
+        const personaSelect = document.getElementById(`comment-persona-${hobbyId}`);
         if (!input) return;
         const text = input.value.trim();
+        const personaId = personaSelect ? personaSelect.value : null;
         if (!text) return;
 
         try {
@@ -659,7 +666,10 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ text: text })
+                body: JSON.stringify({ 
+                    text: text, 
+                    persona_id: personaId ? parseInt(personaId) : null 
+                })
             });
 
             if (response.status === 401) {
@@ -669,6 +679,9 @@
 
             if (response.ok) {
                 location.reload(); 
+            } else {
+                const data = await response.json().catch(() => ({}));
+                alert(data.detail || "Ошибка при отправке комментария");
             }
         } catch (e) {
             console.error('Comment error:', e);

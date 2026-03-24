@@ -5,7 +5,7 @@ class CommentBase(BaseModel):
     text: str = Field(..., max_length=1000)
 
 class CommentCreate(CommentBase):
-    pass
+    persona_id: Optional[int] = None
 
 class CommentUpdate(CommentBase):
     pass

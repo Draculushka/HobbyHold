@@ -3,21 +3,27 @@ from sqlalchemy.orm import Session, joinedload
 from models import Hobby, Comment, Reaction, Persona, User
 from typing import Optional
 
-def add_comment(db: Session, hobby_id: int, user_id: int, text: str) -> Comment:
+def add_comment(db: Session, hobby_id: int, user_id: int, text: str, persona_id: Optional[int] = None) -> Comment:
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-    persona_id = user.active_persona_id
-    if not persona_id:
-        persona = db.query(Persona).filter(Persona.user_id == user_id, Persona.is_default).first()
+    if persona_id:
+        # Проверяем, что выбранная персона принадлежит пользователю
+        persona = db.query(Persona).filter(Persona.id == persona_id, Persona.user_id == user_id).first()
         if not persona:
-            persona = db.query(Persona).filter(Persona.user_id == user_id).first()
-        if not persona:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No persona found for user")
-        persona_id = persona.id
-        user.active_persona_id = persona_id
-        db.commit()
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid persona")
+    else:
+        persona_id = user.active_persona_id
+        if not persona_id:
+            persona = db.query(Persona).filter(Persona.user_id == user_id, Persona.is_default).first()
+            if not persona:
+                persona = db.query(Persona).filter(Persona.user_id == user_id).first()
+            if not persona:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No persona found for user")
+            persona_id = persona.id
+            user.active_persona_id = persona_id
+            db.commit()
 
     hobby = db.query(Hobby).filter(Hobby.id == hobby_id).first()
     if not hobby:

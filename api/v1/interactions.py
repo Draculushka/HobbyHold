@@ -19,7 +19,7 @@ def add_comment(
     if not current_user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
 
-    return interaction_service.add_comment(db, hobby_id, current_user.id, comment.text)
+    return interaction_service.add_comment(db, hobby_id, current_user.id, comment.text, comment.persona_id)
 
 @router.patch("/comments/{comment_id}", response_model=CommentResponse)
 def update_comment(
