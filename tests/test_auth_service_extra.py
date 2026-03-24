@@ -1,4 +1,3 @@
-import pytest
 from unittest.mock import patch
 from datetime import datetime, timezone
 from services.auth_service import verify_deletion_code, verify_code

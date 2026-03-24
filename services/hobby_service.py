@@ -12,7 +12,7 @@ ALLOWED_VIDEO_EXTENSIONS = {".mp4", ".mov", ".avi", ".mkv"}
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
 MAX_VIDEO_SIZE = 50 * 1024 * 1024 # 50 MB (для примера)
 
-from services.video_service import process_video_hls
+from services.video_service import process_video_hls  # noqa: E402
 
 def save_upload_video(file) -> str | None:
     if not file or not file.filename:
@@ -59,7 +59,7 @@ def _check_magic_bytes(content: bytes, ext: str) -> bool:
 def sanitize_description(description: str) -> str:
     return str(sanitize_html(description))
 
-from services.s3_service import upload_file_to_s3, delete_file_from_s3
+from services.s3_service import upload_file_to_s3, delete_file_from_s3  # noqa: E402
 
 def save_upload_image(file) -> str | None:
     if not file or not file.filename:

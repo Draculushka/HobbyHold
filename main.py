@@ -17,7 +17,7 @@ from api.endpoints import auth, hobbies, profile  # noqa: E402
 # Убедимся, что папка для загрузок существует
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-from starlette.types import Scope, Receive, Send, Message
+from starlette.types import Scope, Receive, Send, Message  # noqa: E402
 
 class CustomCSRFMiddleware(CSRFMiddleware):
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
@@ -129,5 +129,5 @@ app.include_router(hobbies.router, tags=["hobbies"])
 app.include_router(profile.router, tags=["profile"])
 
 # Подключение API v1
-from api.v1 import api_router
+from api.v1 import api_router  # noqa: E402
 app.include_router(api_router, prefix="/api/v1")

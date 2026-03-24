@@ -1,5 +1,4 @@
-import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 from services.video_service import process_video_hls
 from pathlib import Path
 
