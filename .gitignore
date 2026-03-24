@@ -9,3 +9,8 @@ data/
 test.db
 .vscode/
 .idea/
+
+# Binaries and Cache
+rg
+.pytest_cache/
+.ruff_cache/

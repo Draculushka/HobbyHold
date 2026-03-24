@@ -31,7 +31,7 @@ alembic downgrade -1
 Трёхслойная архитектура:
 
 - **api/endpoints/** — HTTP-обработчики (auth, hobbies, profile). Маршруты FastAPI, рендер Jinja2 шаблонов
-- **services/** — бизнес-логика (auth_service, hobby_service). Работа с БД, Redis, загрузка изображений, санитизация HTML (bleach)
+- **services/** — бизнес-логика (auth_service, hobby_service). Работа с БД, Redis, загрузка изображений, санитизация HTML (nh3)
 - **core/** — конфигурация (config.py) и безопасность (security.py). JWT в HttpOnly cookies, bcrypt хэширование
 
 Поддерживающие слои:
