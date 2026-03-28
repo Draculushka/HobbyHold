@@ -57,11 +57,11 @@ def test_delete_file_from_s3_client_error(mocker):
 
 def test_init_s3_bucket_success_exists(mocker):
     mock_s3_client = mocker.patch("services.s3_service.s3_client")
-    
+
     # Бакет существует
     from services.s3_service import init_s3_bucket
     init_s3_bucket()
-    
+
     mock_s3_client.head_bucket.assert_called_once()
     mock_s3_client.create_bucket.assert_not_called()
     mock_s3_client.put_bucket_policy.assert_called_once()
@@ -71,10 +71,10 @@ def test_init_s3_bucket_creates_bucket(mocker):
     mock_s3_client.head_bucket.side_effect = ClientError(
         {"Error": {"Code": "404", "Message": "Not Found"}}, "HeadBucket"
     )
-    
+
     from services.s3_service import init_s3_bucket
     init_s3_bucket()
-    
+
     mock_s3_client.head_bucket.assert_called_once()
     mock_s3_client.create_bucket.assert_called_once()
     mock_s3_client.put_bucket_policy.assert_called_once()

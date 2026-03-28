@@ -65,7 +65,7 @@ def init_s3_bucket():
         except ClientError:
             logger.info(f"S3 Bucket '{S3_BUCKET}' not found. Creating it...")
             s3_client.create_bucket(Bucket=S3_BUCKET)
-        
+
         # Set bucket policy to allow public read access to all objects
         import json
         policy = {
