@@ -88,7 +88,7 @@
                         <input type="hidden" id="comment-persona-id" name="persona_id" value="{{ user.active_persona_id }}">
                         {% endif %}
                     </div>
-                    <div class="flex-grow">
+                    <div class="flex-grow min-w-0">
                         <label for="comment-text" class="sr-only">Ваш комментарий</label>
                         <textarea id="comment-text" name="text" rows="3" placeholder="Добавьте свою маску к обсуждению..." required maxlength="1000"
                                   class="w-full bg-transparent border-none p-0 text-dark placeholder-muted/60 focus:ring-0 outline-none transition-all resize-none text-lg"></textarea>
@@ -118,7 +118,7 @@
                             <div class="w-12 h-12 bg-dark rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm">{{ comment.author_persona.username[0].upper() }}</div>
                             {% endif %}
                         </a>
-                        <div class="flex-grow">
+                        <div class="flex-grow min-w-0">
                             <div class="flex items-center justify-between mb-2">
                                 <a href="/profile/{{ comment.author_persona.username }}" class="font-bold text-dark hover:text-primary transition-colors text-base">{{ comment.author_persona.username }}</a>
                                 <time class="text-[11px] text-muted font-bold uppercase tracking-tighter" datetime="{{ comment.created_at.isoformat() }}">{{ comment.created_at.strftime('%d.%m.%Y %H:%M') }}</time>
