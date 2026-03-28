@@ -48,9 +48,9 @@
     </header>
 
     <!-- Post Content Container -->
-    <div class="max-w-4xl mx-auto px-6 pt-16">
+    <div class="max-w-full px-6 md:px-12 pt-16">
         <!-- Story -->
-        <div class="max-w-2xl mx-auto prose prose-lg md:prose-xl prose-stone font-serif text-dark leading-loose prose-a:text-primary hover:prose-a:text-primary-dark mb-12 break-words overflow-hidden">
+        <div class="max-w-2xl mx-auto prose prose-lg md:prose-xl prose-stone font-serif text-dark leading-loose prose-a:text-primary hover:prose-a:text-primary-dark mb-12 break-words overflow-hidden text-center md:text-left">
             {{ hobby.description | sanitize }}
         </div>
 
@@ -64,8 +64,8 @@
         {% endif %}
 
         <!-- Discussion Section -->
-        <section id="comments" class="mt-20 pt-16 border-t border-border mb-20">
-            <div class="max-w-2xl mx-auto mb-12">
+        <section id="comments" class="mt-20 pt-16 border-t border-border mb-20 w-full">
+            <div class="max-w-2xl mx-auto mb-12 text-center md:text-left">
                 <h3 class="text-3xl font-black text-dark mb-2">Обсуждение</h3>
                 <p class="text-muted text-sm mb-10">Мнения и мысли участников сообщества</p>
                 
@@ -84,7 +84,8 @@
                             <option value="{{ persona.id }}" {{ 'selected' if persona.id == user.active_persona_id }}>{{ persona.username }}</option>
                             {% endfor %}
                         </select>
-                        {% else %}                        <input type="hidden" id="comment-persona-id" name="persona_id" value="{{ user.active_persona_id }}">
+                        {% else %}
+                        <input type="hidden" id="comment-persona-id" name="persona_id" value="{{ user.active_persona_id }}">
                         {% endif %}
                     </div>
                     <div class="flex-grow min-w-0">
@@ -104,37 +105,53 @@
                 {% endif %}
             </div>
 
-            <!-- Adaptive Grid Comments (Masonry style) -->
-            <!-- TODO: К бэкенду - внедрить систему лайков для комментариев и сортировку по популярности -->
-            <div class="max-w-full lg:max-w-7xl mx-auto columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
+            <!-- Wide Masonry Layout for PC, Single for Mobile -->
+            <!-- TODO: К бэкенду - внедрить систему лайков для комментариев -->
+            <div class="max-w-[1600px] mx-auto columns-1 lg:columns-2 2xl:columns-3 gap-8 space-y-8 px-4">
                 {% for comment in hobby.comments | sort(attribute='created_at', reverse=True) %}
-                <div class="break-inside-avoid bg-white border border-border/60 p-6 rounded-[2rem] shadow-sm hover:shadow-md transition-all relative group/comment mb-6" id="comment-{{ comment.id }}">
-                    <div class="flex items-start gap-3">
+                <div class="break-inside-avoid bg-white border border-border/60 p-6 md:p-8 rounded-[2.5rem] shadow-sm hover:shadow-md transition-all relative group/comment mb-8" id="comment-{{ comment.id }}">
+                    <div class="flex items-start gap-4">
                         <a href="/profile/{{ comment.author_persona.username }}" class="flex-shrink-0 mt-1">
                             {% if comment.author_persona.avatar_path %}
-                            <img src="{% if comment.author_persona.avatar_path.startswith('http') %}{{ comment.author_persona.avatar_path }}{% else %}/uploads/{{ comment.author_persona.avatar_path }}{% endif %}" class="w-10 h-10 rounded-full object-cover border-2 border-surface shadow-sm">
+                            <img src="{% if comment.author_persona.avatar_path.startswith('http') %}{{ comment.author_persona.avatar_path }}{% else %}/uploads/{{ comment.author_persona.avatar_path }}{% endif %}" class="w-12 h-12 rounded-full object-cover border-2 border-surface shadow-sm">
                             {% else %}
-                            <div class="w-10 h-10 bg-dark rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm">{{ comment.author_persona.username[0].upper() }}</div>
+                            <div class="w-12 h-12 bg-dark rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm">{{ comment.author_persona.username[0].upper() }}</div>
                             {% endif %}
                         </a>
                         <div class="flex-grow min-w-0">
-                            <div class="flex flex-col mb-2">
-                                <a href="/profile/{{ comment.author_persona.username }}" class="font-bold text-dark hover:text-primary transition-colors text-sm truncate">{{ comment.author_persona.username }}</a>
-                                <time class="text-[9px] text-muted font-bold uppercase tracking-tighter" datetime="{{ comment.created_at.isoformat() }}">{{ comment.created_at.strftime('%d.%m.%Y %H:%M') }}</time>
+                            <div class="flex items-center justify-between mb-3">
+                                <div>
+                                    <a href="/profile/{{ comment.author_persona.username }}" class="block font-black text-dark hover:text-primary transition-colors text-base leading-none mb-1">{{ comment.author_persona.username }}</a>
+                                    <time class="text-[10px] text-muted font-bold uppercase tracking-widest" datetime="{{ comment.created_at.isoformat() }}">{{ comment.created_at.strftime('%d.%m.%Y %H:%M') }}</time>
+                                </div>
                             </div>
-                            <p class="text-dark leading-relaxed text-sm whitespace-pre-wrap break-words overflow-hidden">{{ comment.text }}</p>
+                            
+                            <!-- Collapsible Content Wrapper -->
+                            <div class="relative overflow-hidden transition-all duration-500 max-h-48" id="comment-body-{{ comment.id }}">
+                                <p class="text-dark leading-relaxed text-[16px] whitespace-pre-wrap break-words overflow-hidden pb-4">
+                                    {{ comment.text }}
+                                </p>
+                                <!-- Fade gradient overlay -->
+                                <div class="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white to-transparent pointer-events-none" id="fade-{{ comment.id }}"></div>
+                            </div>
+                            
+                            <!-- Read More Button -->
+                            <button onclick="toggleCommentExpand('{{ comment.id }}')" id="btn-more-{{ comment.id }}" 
+                                    class="hidden mt-2 text-xs font-black text-primary uppercase tracking-widest hover:text-primary-dark transition-colors">
+                                Читать полностью
+                            </button>
                         </div>
                     </div>
                     
                     {% if user and (user.id == comment.author_persona.user_id or user.is_admin or user.id == hobby.author_persona.user_id) %}
-                    <div class="absolute bottom-4 right-6 opacity-0 group-hover/comment:opacity-100 transition-opacity flex gap-1">
+                    <div class="absolute bottom-6 right-8 opacity-0 group-hover/comment:opacity-100 transition-opacity flex gap-1">
                         {% if user.id == comment.author_persona.user_id %}
-                        <button onclick="editComment({{ comment.id }}, {{ comment.text | tojson | forceescape }})" class="p-1.5 bg-surface hover:bg-white border border-transparent hover:border-border rounded-lg text-muted hover:text-primary transition-all shadow-sm" title="Редактировать">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                        <button onclick="editComment({{ comment.id }}, {{ comment.text | tojson | forceescape }})" class="p-2 bg-surface hover:bg-white border border-transparent hover:border-border rounded-xl text-muted hover:text-primary transition-all shadow-sm" title="Редактировать">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                         </button>
                         {% endif %}
-                        <button onclick="deleteComment({{ comment.id }})" class="p-1.5 bg-surface hover:bg-white border border-transparent hover:border-border rounded-lg text-muted hover:text-danger transition-all shadow-sm" title="Удалить">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        <button onclick="deleteComment({{ comment.id }})" class="p-2 bg-surface hover:bg-white border border-transparent hover:border-border rounded-xl text-muted hover:text-danger transition-all shadow-sm" title="Удалить">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                         </button>
                     </div>
                     {% endif %}
@@ -145,6 +162,7 @@
 
         <!-- Sticky Interaction Bar -->
         <div class="sticky bottom-8 z-40 bg-white/80 backdrop-blur-md border border-border shadow-2xl rounded-full px-6 py-4 flex items-center justify-between mx-auto max-w-sm mb-16">
+            {% set user_persona_ids = (user.personas | map(attribute='id') | list) if user else [] %}
             <div class="flex gap-4">
                 <!-- Heart -->
                 {% set heart_count = hobby.reactions | selectattr('emoji_type', 'equalto', 'heart') | list | length %}
@@ -185,6 +203,39 @@
 
 {% block scripts %}
 <script>
+    // Инициализация кнопок "Читать далее"
+    document.addEventListener('DOMContentLoaded', () => {
+        const bodies = document.querySelectorAll('[id^="comment-body-"]');
+        bodies.forEach(body => {
+            const id = body.id.split('-').pop();
+            // scrollHeight - полная высота контента, offsetHeight - видимая высота (max-h-48 = 192px)
+            if (body.scrollHeight > body.offsetHeight + 10) {
+                const btn = document.getElementById(`btn-more-${id}`);
+                if (btn) btn.classList.remove('hidden');
+            } else {
+                const fade = document.getElementById(`fade-${id}`);
+                if (fade) fade.classList.add('hidden');
+                body.style.maxHeight = 'none';
+            }
+        });
+    });
+
+    function toggleCommentExpand(id) {
+        const body = document.getElementById(`comment-body-${id}`);
+        const fade = document.getElementById(`fade-${id}`);
+        const btn = document.getElementById(`btn-more-${id}`);
+        
+        if (body.style.maxHeight === 'none') {
+            body.style.maxHeight = '12rem'; // 192px
+            fade.classList.remove('hidden');
+            btn.textContent = 'Читать полностью';
+        } else {
+            body.style.maxHeight = 'none';
+            fade.classList.add('hidden');
+            btn.textContent = 'Свернуть';
+        }
+    }
+
     async function addComment(event, hobbyId) {
         event.preventDefault();
         const textElement = document.getElementById('comment-text');
