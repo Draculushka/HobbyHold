@@ -21,7 +21,7 @@ def register_page(request: Request, error: Optional[str] = None):
 @router.post("/register")
 def register_user(
     background_tasks: BackgroundTasks,
-    username: str = Form(..., max_length=30),
+    username: str = Form(..., max_length=20),
     email: str = Form(..., max_length=254),
     password: str = Form(..., min_length=6, max_length=64),
     db: Session = Depends(get_db)

@@ -86,7 +86,7 @@
                         <input type="hidden" name="csrftoken" value="{{ request.scope.get('csrftoken', '') }}">
                         <div>
                             <label for="new-persona-name" class="sr-only">Псевдоним</label>
-                            <input id="new-persona-name" type="text" name="username" placeholder="Псевдоним" required class="w-full bg-surface border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-primary outline-none">
+                            <input id="new-persona-name" type="text" name="username" placeholder="Псевдоним" required maxlength="20" class="w-full bg-surface border-none rounded-xl p-3 text-sm focus:ring-2 focus:ring-primary outline-none">
                         </div>
                         <div>
                             <label for="new-persona-bio" class="sr-only">Описание</label>

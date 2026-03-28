@@ -354,7 +354,7 @@
                                 <div class="flex items-center justify-between px-1">
                                     <span class="text-[10px] font-bold text-muted uppercase tracking-widest">Комментировать как:</span>
                                     {% if user.personas|length > 1 %}
-                                    <select id="comment-persona-{{ hobby.id }}" class="text-[10px] bg-surface border-none rounded-md px-2 py-1 outline-none focus:ring-1 focus:ring-primary cursor-pointer font-bold text-primary">
+                                    <select id="comment-persona-{{ hobby.id }}" class="text-[10px] bg-surface border-none rounded-md px-2 py-1 outline-none focus:ring-1 focus:ring-primary cursor-pointer font-bold text-primary w-auto min-w-[5rem]">
                                         {% for persona in user.personas %}
                                         <option value="{{ persona.id }}" {{ 'selected' if persona.id == user.active_persona_id }}>{{ persona.username }}</option>
                                         {% endfor %}

@@ -41,7 +41,7 @@ def cabinet_page(request: Request, page: int = 1, db: Session = Depends(get_db),
 
 @router.post("/cabinet/persona/create")
 def create_persona(
-    username: str = Form(..., max_length=30),
+    username: str = Form(..., max_length=20),
     bio: str = Form(None, max_length=500),
     avatar: UploadFile = File(None),
     db: Session = Depends(get_db),
