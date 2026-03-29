@@ -173,7 +173,7 @@ def delete_hobby(db: Session, hobby: Hobby):
 
 def search_hobbies(db: Session, search: str, cursor: int | None, limit: int):
     """Returns (hobbies, next_cursor)"""
-    from models import Hobby, Persona, User, Comment, Reaction, CommentReaction
+    from models import Hobby, Persona, User
     from core.config import HOBBY_SYNONYMS
 
     limit = max(1, min(limit, 100))
