@@ -21,19 +21,19 @@ def test_persona_limit_regular_user(db: Session, client: TestClient):
     # Для простоты используем client и обходим авторизацию через dependency override
     from core.security import get_current_user
     from main import app
-    
+
     app.dependency_overrides[get_current_user] = lambda: user
 
     client.post("/cabinet/persona/create", data={"username": "mask3", "bio": ""})
-    
+
     # Ожидаем, что нас перенаправит обратно с ошибкой (или вернет 400, если бы это было JSON API)
     # В нашем случае эндпоинт возвращает RedirectResponse, но внутри проверяет лимит
     # Если мы посмотрим в профиль контроллер, там лимит 4/2
     # Давайте проверим, что 3-я маска НЕ создалась
-    
+
     db.refresh(user)
     assert len(user.personas) == 2
-    
+
     app.dependency_overrides.clear()
 
 def test_persona_limit_premium_user(db: Session, client: TestClient):
@@ -70,11 +70,11 @@ def test_soft_delete_user(db: Session, client: TestClient):
     user = User(email="soft_delete@test.com", hashed_password=get_password_hash("pw"), is_active=True)
     db.add(user)
     db.commit()
-    
+
     p = Persona(user_id=user.id, username="soft_p")
     db.add(p)
     db.commit()
-    
+
     h = Hobby(persona_id=p.id, title="Test Hobby", description="Desc")
     db.add(h)
     db.commit()
@@ -91,11 +91,11 @@ def test_search_synonyms(db: Session):
     user = User(email="syn@test.com", hashed_password="pw")
     db.add(user)
     db.commit()
-    
+
     p = Persona(user_id=user.id, username="syn_p")
     db.add(p)
     db.commit()
-    
+
     # Создаем хобби с названием "шахматы"
     h1 = Hobby(persona_id=p.id, title="Играю в шахматы", description="Desc")
     db.add(h1)
@@ -103,6 +103,6 @@ def test_search_synonyms(db: Session):
 
     # Поиск по слову "chess" должен найти "шахматы" (согласно HOBBY_SYNONYMS)
     hobbies, _ = search_hobbies(db, search="chess", cursor=None, limit=10)
-    
+
     assert len(hobbies) == 1
     assert hobbies[0].id == h1.id
