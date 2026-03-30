@@ -82,7 +82,10 @@
         {% else %}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             {% for hobby in hobbies %}
-            <article class="bg-white rounded-card overflow-hidden border border-border group hover:shadow-xl transition-all duration-500">
+            <article class="bg-white rounded-card overflow-hidden border border-border group hover:shadow-xl transition-all duration-500 relative">
+                <!-- Ссылка на всю карточку -->
+                <a href="/p/{{ hobby.id }}" class="absolute inset-0 z-10" aria-label="Открыть {{ hobby.title }}"></a>
+                
                 <div class="relative aspect-[4/3] overflow-hidden">
                     {% if hobby.image_path %}
                     <img src="{% if hobby.image_path.startswith('http') %}{{ hobby.image_path }}{% else %}/uploads/{{ hobby.image_path }}{% endif %}" alt="{{ hobby.title }}" loading="lazy"

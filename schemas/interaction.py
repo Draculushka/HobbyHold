@@ -7,9 +7,20 @@ class CommentBase(BaseModel):
 
 class CommentCreate(CommentBase):
     persona_id: Optional[int] = None
+    parent_id: Optional[int] = None
 
 class CommentUpdate(CommentBase):
     pass
+
+class NotificationResponse(BaseModel):
+    id: int
+    type: str
+    message: str
+    link: Optional[str]
+    is_read: bool
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
 
 class CommentReactionResponse(BaseModel):
     id: int
@@ -23,6 +34,7 @@ class CommentResponse(CommentBase):
     id: int
     hobby_id: int
     persona_id: int
+    parent_id: Optional[int] = None
     created_at: datetime
     reactions: list[CommentReactionResponse] = []
 

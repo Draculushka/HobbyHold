@@ -91,6 +91,11 @@
                         {% endif %}
                     </div>
                     <div class="flex-grow min-w-0">
+                        <input type="hidden" id="parent-comment-id" value="">
+                        <div id="reply-indicator" class="hidden mb-2 flex items-center justify-between bg-surface px-3 py-1 rounded-lg">
+                            <span class="text-[10px] font-bold text-muted uppercase">Ответ для <span id="reply-target-name" class="text-primary"></span></span>
+                            <button type="button" onclick="cancelReply()" class="text-muted hover:text-danger">&times;</button>
+                        </div>
                         <label for="comment-text" class="sr-only">Ваш комментарий</label>
                         <textarea id="comment-text" name="text" rows="3" placeholder="Добавьте свою маску к обсуждению..." required maxlength="1000"
                                   class="w-full bg-transparent border-none p-0 text-dark placeholder-muted/60 focus:ring-0 outline-none transition-all resize-none text-lg"></textarea>
@@ -129,6 +134,14 @@
 
                     <!-- Comment Body: Text starts from the left -->
                     <div class="relative min-w-0">
+                        {% if comment.parent_id %}
+                        {% set parent_comment = hobby.comments | selectattr('id', 'equalto', comment.parent_id) | first %}
+                        {% if parent_comment %}
+                        <div class="mb-2 text-[10px] font-bold text-primary/60 uppercase tracking-tighter">
+                            Ответ для <a href="/profile/{{ parent_comment.author_persona.username }}" class="hover:underline">@{{ parent_comment.author_persona.username }}</a>
+                        </div>
+                        {% endif %}
+                        {% endif %}
                         <!-- Collapsible Content Wrapper -->
                         <div class="relative overflow-hidden transition-all duration-500 max-h-48" id="comment-body-{{ comment.id }}">
                             <p class="text-dark text-left leading-relaxed text-[16px] whitespace-pre-wrap break-words overflow-hidden pb-4">{{ comment.text }}</p>
@@ -142,7 +155,7 @@
                         </button>
                     </div>
 
-                    <div class="mt-4 flex items-center gap-4">
+                    <div class="mt-4 flex items-center gap-6">
                         {% set comment_like_count = comment.reactions | length %}
                         {% set my_comment_like = comment.reactions | selectattr('persona_id', 'in', user_persona_ids) | first if user else none %}
                         <button onclick="toggleCommentLike(this, {{ comment.id }})" data-active="{{ 'true' if my_comment_like else 'false' }}"
@@ -150,6 +163,13 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 {{ 'fill-current' if my_comment_like else 'fill-none stroke-current' }} group-hover/btn:scale-110 transition-transform" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
                             <span id="count-comment-like-{{ comment.id }}">{{ comment_like_count if comment_like_count > 0 else '' }}</span>
                         </button>
+
+                        {% if user %}
+                        <button onclick="setReplyTarget({{ comment.id }}, '{{ comment.author_persona.username }}')" class="flex items-center gap-1.5 text-xs font-bold text-muted hover:text-primary transition-colors group/reply">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l5 5m-5-5l5-5"/></svg>
+                            <span>Ответить</span>
+                        </button>
+                        {% endif %}
                     </div>
                     
                     {% if user and (user.id == comment.author_persona.user_id or user.is_admin or user.id == hobby.author_persona.user_id) %}
@@ -211,6 +231,23 @@
 
 {% block scripts %}
 <script>
+    function setReplyTarget(commentId, username) {
+        document.getElementById('parent-comment-id').value = commentId;
+        document.getElementById('reply-target-name').textContent = username;
+        document.getElementById('reply-indicator').classList.remove('hidden');
+        
+        const input = document.getElementById('comment-text');
+        input.value = `@${username}, ` + input.value;
+        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        input.focus();
+    }
+
+    function cancelReply() {
+        document.getElementById('parent-comment-id').value = "";
+        document.getElementById('reply-indicator').classList.add('hidden');
+        document.getElementById('comment-text').placeholder = "Добавьте свою маску к обсуждению...";
+    }
+
     // Инициализация кнопок "Читать далее"
     document.addEventListener('DOMContentLoaded', () => {
         const bodies = document.querySelectorAll('[id^="comment-body-"]');
@@ -243,28 +280,34 @@
             btn.textContent = 'Свернуть';
         }
     }
+async function addComment(event, hobbyId) {
+    event.preventDefault();
+    const textElement = document.getElementById('comment-text');
+    const personaElement = document.getElementById('comment-persona-id');
+    const parentElement = document.getElementById('parent-comment-id');
+    const submitBtn = document.getElementById('comment-submit-btn');
 
-    async function addComment(event, hobbyId) {
-        event.preventDefault();
-        const textElement = document.getElementById('comment-text');
-        const personaElement = document.getElementById('comment-persona-id');
-        const submitBtn = document.getElementById('comment-submit-btn');
+    const text = textElement.value.trim();
+    const personaId = personaElement ? personaElement.value : null;
+    const parentId = parentElement ? parentElement.value : null;
 
-        const text = textElement.value.trim();
-        const personaId = personaElement ? personaElement.value : null;
+    if (!text) return;
 
-        if (!text) return;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Отправка...';
 
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Отправка...';
-
-        try {
-            const response = await fetch(`/api/v1/hobbies/${hobbyId}/comments`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: text, persona_id: personaId ? parseInt(personaId) : null })
-            });
-
+    try {
+        const response = await fetch(`/api/v1/hobbies/${hobbyId}/comments`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                text: text, 
+                persona_id: personaId ? parseInt(personaId) : null,
+                parent_id: parentId ? parseInt(parentId) : null
+            })
+        });
             if (response.ok) {
                 location.reload();
             } else {

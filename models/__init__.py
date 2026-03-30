@@ -92,11 +92,30 @@ class Comment(Base):
     text = Column(Text, nullable=False)
     hobby_id = Column(Integer, ForeignKey("hobbies.id"), nullable=False, index=True)
     persona_id = Column(Integer, ForeignKey("personas.id"), nullable=False, index=True)
+    parent_id = Column(Integer, ForeignKey("comments.id"), nullable=True, index=True) # Для вложенных комментариев
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), index=True)
 
     hobby = relationship("Hobby", back_populates="comments")
     author_persona = relationship("Persona", back_populates="comments")
     reactions = relationship("CommentReaction", back_populates="comment", cascade="all, delete-orphan")
+    
+    # Вложенность
+    parent = relationship("Comment", remote_side=[id], back_populates="replies")
+    replies = relationship("Comment", back_populates="parent", cascade="all, delete-orphan")
+
+class Notification(Base):
+    """Уведомления для пользователей."""
+    __tablename__ = "notifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    type = Column(String(50), nullable=False) # 'like', 'comment', 'follow', 'reply'
+    message = Column(Text, nullable=False)
+    link = Column(String, nullable=True)
+    is_read = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), index=True)
+
+    user = relationship("User", backref="notifications")
 
 class Reaction(Base):
     """Реакция/Лайк к посту."""
