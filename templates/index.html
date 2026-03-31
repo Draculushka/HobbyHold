@@ -336,8 +336,7 @@
                         <!-- Скрытая секция комментариев -->
                         <div id="comments-{{ hobby.id }}" class="hidden mt-6 space-y-4 animate-in fade-in slide-in-from-top-2">
                             <div class="max-h-60 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
-                                {% for comment in (hobby.comments | list) | sort(attribute='created_at', reverse=True) %}
-                                {% if not comment.parent_id %}
+                                {% for comment in hobby.root_comments_flat %}
                                 <div class="space-y-2 group/thread">
                                     <!-- Root Comment (Single Box) -->
                                     <div class="bg-surface p-4 rounded-2xl text-sm group/comment overflow-hidden" id="comment-{{ comment.id }}">
@@ -379,28 +378,34 @@
                                             {% endif %}
                                         </div>
 
-                                        {% if comment.replies %}
+                                        {% if comment.all_replies_flat %}
                                         <button onclick="toggleIndexReplies({{ comment.id }})" id="replies-btn-{{ comment.id }}" class="mt-2 text-[9px] font-bold text-primary uppercase tracking-tighter hover:underline flex items-center gap-1">
-                                            <span>{{ comment.replies | length }} ответов</span>
+                                            <span>{{ comment.all_replies_flat | length }} ответов</span>
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-2 w-2 transition-transform" id="replies-icon-{{ comment.id }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"/></svg>
                                         </button>
                                         {% endif %}
 
                                         <!-- Replies inside the same Box -->
                                         <div id="replies-container-{{ comment.id }}" class="hidden space-y-2 mt-3 pt-3 border-t border-border/40">
-                                            {% for reply in (comment.replies | list) | sort(attribute='created_at') %}
+                                            {% for reply in comment.all_replies_flat %}
                                             <div class="bg-surface/60 p-3 rounded-xl text-xs group/comment">
                                                 <div class="flex justify-between items-center mb-1">
-                                                    <span class="font-bold text-dark">{{ reply.author_persona.username }}</span>
-                                                    <span class="text-[9px] text-subtle">{{ reply.created_at.strftime('%H:%M') }}</span>
+                                                    <span class="font-bold text-dark text-[11px]">{{ reply.author_persona.username }}</span>
+                                                    <span class="text-[8px] text-subtle">{{ reply.created_at.strftime('%H:%M') }}</span>
+                                                </div>
+                                                <div class="mb-1 text-[8px] font-bold text-primary/60 uppercase flex items-center gap-1.5">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M3 10h10a8 8 0 018 8v2M3 10l5 5m-5-5l5-5"/></svg>
+                                                    Ответ для <span class="text-primary">@{{ reply.parent.author_persona.username }}</span>
                                                 </div>
                                                 <p class="text-muted leading-relaxed break-words">{{ reply.text }}</p>
+                                                {% if user %}
+                                                <button onclick="setReplyTarget({{ hobby.id }}, {{ reply.id }}, '{{ reply.author_persona.username }}')" class="mt-1 text-[8px] font-bold text-muted hover:text-primary transition-colors">Ответить</button>
+                                                {% endif %}
                                             </div>
                                             {% endfor %}
                                         </div>
                                     </div>
                                 </div>
-                                {% endif %}
                                 {% endfor %}
                             </div>
                             

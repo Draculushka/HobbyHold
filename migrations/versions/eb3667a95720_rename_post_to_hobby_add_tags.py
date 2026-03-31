@@ -18,14 +18,21 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
+    # Определяем диалект БД
+    dialect = op.get_context().dialect.name
+
     # Переименовываем таблицу posts в hobbies
     op.rename_table('posts', 'hobbies')
 
-    # Переименовываем индексы и ограничения (Alembic обычно делает это автоматически при rename_table в некоторых диалектах, но лучше явно)
-    # В PostgreSQL индексы при переименовании таблицы сохраняются, но их имена могут остаться старыми.
-    op.execute("ALTER INDEX ix_posts_id RENAME TO ix_hobbies_id")
-    op.execute("ALTER TABLE hobbies RENAME CONSTRAINT posts_pkey TO hobbies_pkey")
-    op.execute("ALTER TABLE hobbies RENAME CONSTRAINT posts_author_id_fkey TO hobbies_author_id_fkey")
+    if dialect == 'postgresql':
+        # Переименовываем индексы и ограничения (Alembic обычно делает это автоматически при rename_table в некоторых диалектах, но лучше явно)
+        # В PostgreSQL индексы при переименовании таблицы сохраняются, но их имена могут остаться старыми.
+        try:
+            op.execute("ALTER INDEX ix_posts_id RENAME TO ix_hobbies_id")
+            op.execute("ALTER TABLE hobbies RENAME CONSTRAINT posts_pkey TO hobbies_pkey")
+            op.execute("ALTER TABLE hobbies RENAME CONSTRAINT posts_author_id_fkey TO hobbies_author_id_fkey")
+        except Exception:
+            pass
 
     # Создаем таблицу tags
     op.create_table('tags',

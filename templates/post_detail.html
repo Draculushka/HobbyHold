@@ -183,8 +183,7 @@
                     </div>
                 {% endmacro %}
 
-                {% for comment in hobby.comments | sort(attribute='created_at', reverse=True) %}
-                {% if not comment.parent_id %}
+                {% for comment in root_comments %}
                 <div class="break-inside-avoid mb-8">
                     <div class="bg-white border border-border/60 rounded-[2.5rem] shadow-sm hover:shadow-md transition-all relative group/thread overflow-hidden">
                         
@@ -192,25 +191,23 @@
                         {{ render_comment_item(comment, is_root=True) }}
 
                         <!-- Replies Trigger -->
-                        {% if comment.replies %}
+                        {% if comment.all_replies_flat %}
                         <div class="px-6 md:p-8 pt-0 pb-6 md:pb-8">
                             <button onclick="toggleReplies({{ comment.id }})" id="replies-btn-{{ comment.id }}" class="text-[10px] font-black text-primary uppercase tracking-widest hover:text-primary-dark transition-colors flex items-center gap-2">
-                                <span>Показать ответы ({{ (comment.replies | list) | length }})</span>
+                                <span>Показать ответы ({{ comment.all_replies_flat | length }})</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 transition-transform" id="replies-icon-{{ comment.id }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"/></svg>
                             </button>
                         </div>
                         {% endif %}
 
-                        <!-- Recursive Replies Container -->
+                        <!-- Flat Replies Container -->
                         <div id="replies-container-{{ comment.id }}" class="hidden bg-surface/30 border-t border-border/40">
-                            {% for reply in (comment.replies | list) | sort(attribute='created_at') %}
+                            {% for reply in comment.all_replies_flat %}
                                 {{ render_comment_item(reply) }}
-                                {# Можно добавить рекурсию здесь для глубоких ответов, но для бокса 2 уровня - идеально #}
                             {% endfor %}
                         </div>
                     </div>
                 </div>
-                {% endif %}
                 {% endfor %}
             </div>
         </section>

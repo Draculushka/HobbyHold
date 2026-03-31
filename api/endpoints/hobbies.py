@@ -13,6 +13,16 @@ from services import hobby_service
 router = APIRouter()
 
 
+def flatten_comments(comments):
+    """Рекурсивно собирает все вложенные комментарии в один плоский список."""
+    flat_list = []
+    for comment in comments:
+        flat_list.append(comment)
+        if comment.replies:
+            flat_list.extend(flatten_comments(comment.replies))
+    return flat_list
+
+
 @router.get("/debug-p")
 def debug_p():
     return {"status": "ok", "message": "Hobbies router is active"}
@@ -46,9 +56,25 @@ def post_detail(
     if not hobby:
         raise HTTPException(status_code=404, detail="Hobby not found")
 
+    # Группируем комментарии: только корневые, но каждый хранит в себе ВСЕХ потомков (плоским списком)
+    root_comments = []
+    if hobby.comments:
+        for comment in hobby.comments:
+            if not comment.parent_id:
+                # Собираем всех потомков рекурсивно
+                all_descendants = flatten_comments(comment.replies)
+                # Сортируем по дате
+                all_descendants.sort(key=lambda x: x.created_at)
+                # Временно привязываем этот список к объекту для шаблона
+                comment.all_replies_flat = all_descendants
+                root_comments.append(comment)
+
+    # Сортируем корневые по дате (новые сверху)
+    root_comments.sort(key=lambda x: x.created_at, reverse=True)
+
     return templates.TemplateResponse(
         "post_detail.html",
-        {"request": request, "hobby": hobby, "user": current_user}
+        {"request": request, "hobby": hobby, "user": current_user, "root_comments": root_comments}
     )
 
 
@@ -72,6 +98,19 @@ def home(
     limit = 10
 
     hobbies, next_cursor = hobby_service.search_hobbies(db, search, cursor, limit)
+
+    # Готовим плоский список комментариев для ленты
+    for h in hobbies:
+        h.root_comments_flat = []
+        if h.comments:
+            for comment in h.comments:
+                if not comment.parent_id:
+                    all_descendants = flatten_comments(comment.replies)
+                    all_descendants.sort(key=lambda x: x.created_at)
+                    comment.all_replies_flat = all_descendants
+                    h.root_comments_flat.append(comment)
+            h.root_comments_flat.sort(key=lambda x: x.created_at, reverse=True)
+
     return templates.TemplateResponse(
         "index.html",
         {"request": request, "hobbies": hobbies, "next_cursor": next_cursor, "search": search, "user": current_user, "error": error}

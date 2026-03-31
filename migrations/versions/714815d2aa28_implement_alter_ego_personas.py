@@ -59,22 +59,33 @@ def upgrade() -> None:
         # Обновляем все хобби этого юзера, привязывая их к новой персоне
         connection.execute(
             sa.text("UPDATE hobbies SET persona_id = :persona_id WHERE author_id = :user_id"),
-            {"persona_id": persona_id, "user_id": user[0]}
-        )
+            def upgrade() -> None:
+                """Upgrade schema."""
+                # Определяем диалект БД
+                dialect = op.get_context().dialect.name
 
-    # 4. Теперь, когда данные перенесены, делаем колонку persona_id обязательной
-    op.alter_column('hobbies', 'persona_id', existing_type=sa.Integer(), nullable=False)
+                # 1. Сначала создаем таблицу personas
+            ...
+                # 4. Теперь, когда данные перенесены, делаем колонку persona_id обязательной и убираем старые связи
+                with op.batch_alter_table('hobbies') as batch_op:
+                    batch_op.alter_column('persona_id', existing_type=sa.Integer(), nullable=False)
+                    batch_op.create_foreign_key('hobbies_persona_id_fkey', 'personas', ['persona_id'], ['id'])
+                    # Убираем старые связи
+                    if dialect == 'postgresql':
+                        try:
+                            batch_op.drop_constraint('hobbies_author_id_fkey', type_='foreignkey')
+                        except Exception:
+                            pass
+                    batch_op.drop_column('author_id')
+                    batch_op.drop_column('author')
 
-    # 5. Убираем старые связи
-    op.drop_constraint('hobbies_author_id_fkey', 'hobbies', type_='foreignkey')
-    op.create_foreign_key(None, 'hobbies', 'personas', ['persona_id'], ['id'])
-    op.drop_column('hobbies', 'author_id')
-    op.drop_column('hobbies', 'author')
-
-    op.drop_index('ix_users_username', table_name='users')
-    op.drop_column('users', 'username')
-    # ### end Alembic commands ###
-
+                with op.batch_alter_table('users') as batch_op:
+                    try:
+                        batch_op.drop_index('ix_users_username')
+                    except Exception:
+                        pass
+                    batch_op.drop_column('username')
+                # ### end Alembic commands ###
 
 def downgrade() -> None:
     """Downgrade schema."""
