@@ -1,10 +1,12 @@
-from sqlalchemy.orm import Session
-from models import User, Persona
-from core.security import get_password_hash, verify_password
-from core.config import REDIS_URL
-import redis
-import secrets
 import hmac
+import secrets
+
+import redis
+from sqlalchemy.orm import Session
+
+from core.config import REDIS_URL
+from core.security import get_password_hash, verify_password
+from models import Persona, User
 
 # Инициализация Redis клиента
 redis_client = redis.Redis.from_url(REDIS_URL, decode_responses=True)

@@ -1,14 +1,15 @@
 import os
-from fastapi import APIRouter, Depends, Form, Request, status, BackgroundTasks
-from fastapi.responses import RedirectResponse
-from sqlalchemy.orm import Session
 from typing import Optional
 
+from fastapi import APIRouter, BackgroundTasks, Depends, Form, Request, status
+from fastapi.responses import RedirectResponse
+from sqlalchemy.orm import Session
+
+from core.security import create_access_token
+from core.templates import templates
 from database import get_db
 from services import auth_service
 from services.notification_service import send_mock_email
-from core.security import create_access_token
-from core.templates import templates
 
 router = APIRouter()
 

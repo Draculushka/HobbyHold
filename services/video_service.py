@@ -1,10 +1,11 @@
-import subprocess
 import logging
+import subprocess
+
 from core.celery_app import celery_app
-from services.s3_service import upload_file_to_s3
 from core.config import UPLOAD_DIR
 from database import SessionLocal
 from models import Hobby
+from services.s3_service import upload_file_to_s3
 
 logger = logging.getLogger(__name__)
 

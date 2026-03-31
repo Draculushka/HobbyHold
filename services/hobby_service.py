@@ -1,11 +1,13 @@
 import os
 import uuid
+
 from fastapi import HTTPException
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import or_, func
-from models import Hobby, Tag, Comment, Reaction
+
 from core.config import UPLOAD_DIR
 from core.templates import sanitize_html
+from models import Comment, Hobby, Reaction, Tag
 
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
 ALLOWED_VIDEO_EXTENSIONS = {".mp4", ".mov", ".avi", ".mkv"}
@@ -13,6 +15,7 @@ MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
 MAX_VIDEO_SIZE = 50 * 1024 * 1024 # 50 MB (для примера)
 
 from services.video_service import process_video_hls  # noqa: E402
+
 
 def save_upload_video(file) -> str | None:
     if not file or not file.filename:
@@ -59,7 +62,8 @@ def _check_magic_bytes(content: bytes, ext: str) -> bool:
 def sanitize_description(description: str) -> str:
     return str(sanitize_html(description))
 
-from services.s3_service import upload_file_to_s3, delete_file_from_s3  # noqa: E402
+from services.s3_service import delete_file_from_s3, upload_file_to_s3  # noqa: E402
+
 
 def save_upload_image(file) -> str | None:
     if not file or not file.filename:
@@ -173,8 +177,8 @@ def delete_hobby(db: Session, hobby: Hobby):
 
 def search_hobbies(db: Session, search: str, cursor: int | None, limit: int):
     """Returns (hobbies, next_cursor)"""
-    from models import Hobby, Persona, User
     from core.config import HOBBY_SYNONYMS
+    from models import Hobby, Persona, User
 
     limit = max(1, min(limit, 100))
     query = db.query(Hobby).join(Persona, Hobby.persona_id == Persona.id).join(Persona.user).filter(User.deleted_at.is_(None))
@@ -207,8 +211,9 @@ def search_hobbies(db: Session, search: str, cursor: int | None, limit: int):
 
 def get_random_hobby_title(db: Session) -> str | None:
     """Returns a random hobby title for redirect, or None"""
-    from models import Hobby
     import urllib.parse
+
+    from models import Hobby
     hobby = db.query(Hobby.title).order_by(func.random()).limit(1).first()
     if not hobby:
         return None

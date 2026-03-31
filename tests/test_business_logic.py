@@ -1,10 +1,12 @@
-from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
 from datetime import datetime, timezone
 
-from models import User, Persona, Hobby
+from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
+
 from core.security import get_password_hash
+from models import Hobby, Persona, User
 from services.hobby_service import search_hobbies
+
 
 def test_persona_limit_regular_user(db: Session, client: TestClient):
     # Создаем обычного пользователя

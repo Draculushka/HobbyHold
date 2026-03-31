@@ -1,9 +1,8 @@
 """
 P0 endpoint integration tests for hobby CRUD and IDOR protection.
 """
-from models import User, Persona, Hobby
-from core.security import get_password_hash, create_access_token
-
+from core.security import create_access_token, get_password_hash
+from models import Hobby, Persona, User
 
 # ---------------------------------------------------------------------------
 # Helpers

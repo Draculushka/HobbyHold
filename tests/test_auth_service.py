@@ -1,15 +1,14 @@
 from datetime import datetime, timezone
 from unittest.mock import patch
 
-from models import User, Persona
 from core.security import verify_password
+from models import Persona, User
 from services.auth_service import (
-    create_user,
     authenticate_user,
+    create_user,
     request_verification_code,
     verify_code,
 )
-
 
 # ── create_user ──────────────────────────────────────────────────────────────
 

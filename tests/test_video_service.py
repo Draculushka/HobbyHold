@@ -1,6 +1,8 @@
-from unittest.mock import MagicMock
-from services.video_service import process_video_hls
 from pathlib import Path
+from unittest.mock import MagicMock
+
+from services.video_service import process_video_hls
+
 
 def test_process_video_hls_success(mocker):
     # Мокаем файловую систему

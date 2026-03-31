@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, Query, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
+
 from database import get_db
 from models import Hobby
-from schemas.hobby import PaginatedHobbyResponse, HobbyResponse
+from schemas.hobby import HobbyResponse, PaginatedHobbyResponse
 from services import hobby_service
 
 router = APIRouter(prefix="/hobbies")

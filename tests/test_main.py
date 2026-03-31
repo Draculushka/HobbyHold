@@ -1,7 +1,7 @@
 from unittest.mock import patch
-from models import User, Persona, Hobby
-from core.security import get_password_hash, create_access_token
 
+from core.security import create_access_token, get_password_hash
+from models import Hobby, Persona, User
 
 # ---------------------------------------------------------------------------
 # Helpers

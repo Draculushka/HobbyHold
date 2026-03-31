@@ -1,8 +1,10 @@
 import pytest
-from sqlalchemy.orm import Session
-from models import User, Persona
-from services.interaction_service import follow_persona, unfollow_persona, get_persona_followers_count, is_following
 from fastapi import HTTPException
+from sqlalchemy.orm import Session
+
+from models import Persona, User
+from services.interaction_service import follow_persona, get_persona_followers_count, is_following, unfollow_persona
+
 
 def test_follow_persona_success(db: Session):
     # User A with Persona 1

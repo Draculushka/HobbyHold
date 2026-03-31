@@ -1,8 +1,11 @@
-from fastapi import HTTPException, status
-from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import func
-from models import Hobby, Comment, Reaction, Persona, User, CommentReaction, Follow, Notification
 from typing import Optional
+
+from fastapi import HTTPException, status
+from sqlalchemy import func
+from sqlalchemy.orm import Session, joinedload
+
+from models import Comment, CommentReaction, Follow, Hobby, Notification, Persona, Reaction, User
+
 
 def create_notification(db: Session, user_id: int, n_type: str, message: str, link: Optional[str] = None):
     """

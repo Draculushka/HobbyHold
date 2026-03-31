@@ -1,7 +1,9 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
-from models import User, Persona, Hobby
+
 from core.security import create_access_token
+from models import Hobby, Persona, User
+
 
 def auth_headers(email: str):
     token = create_access_token(data={"sub": email})

@@ -1,14 +1,22 @@
+from typing import Optional
+
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
-from typing import Optional
+
+from core.security import get_current_user
 from database import get_db
 from models import User
 from schemas.interaction import (
-    CommentCreate, CommentResponse, ReactionCreate, ReactionResponse,
-    CommentUpdate, CommentReactionResponse, FollowResponse, PersonaStatsResponse,
-    NotificationResponse
+    CommentCreate,
+    CommentReactionResponse,
+    CommentResponse,
+    CommentUpdate,
+    FollowResponse,
+    NotificationResponse,
+    PersonaStatsResponse,
+    ReactionCreate,
+    ReactionResponse,
 )
-from core.security import get_current_user
 from services import interaction_service
 
 router = APIRouter()

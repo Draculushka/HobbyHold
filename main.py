@@ -1,7 +1,7 @@
+import http.cookies
 import logging
 import os
 import re
-import http.cookies
 from typing import Optional
 
 from fastapi import FastAPI, Request
@@ -11,13 +11,14 @@ from starlette_csrf import CSRFMiddleware
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(name)s %(levelname)s %(message)s')
 
-from core.config import UPLOAD_DIR, SECRET_KEY  # noqa: E402
 from api.endpoints import auth, hobbies, profile  # noqa: E402
+from core.config import SECRET_KEY, UPLOAD_DIR  # noqa: E402
 
 # Убедимся, что папка для загрузок существует
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-from starlette.types import Scope, Receive, Send, Message  # noqa: E402
+from starlette.types import Message, Receive, Scope, Send  # noqa: E402
+
 
 class CustomCSRFMiddleware(CSRFMiddleware):
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
@@ -99,6 +100,7 @@ class CustomCSRFMiddleware(CSRFMiddleware):
 
 from contextlib import asynccontextmanager  # noqa: E402
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     from services.s3_service import init_s3_bucket
@@ -138,4 +140,5 @@ app.include_router(profile.router, tags=["profile"])
 
 # Подключение API v1
 from api.v1 import api_router  # noqa: E402
+
 app.include_router(api_router, prefix="/api/v1")

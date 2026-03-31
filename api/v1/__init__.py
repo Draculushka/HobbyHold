@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+
 from . import auth, hobbies, interactions
 
 api_router = APIRouter()

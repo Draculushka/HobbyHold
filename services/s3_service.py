@@ -1,7 +1,9 @@
+import logging
+
 import boto3
 from botocore.exceptions import ClientError
-from core.config import S3_ENDPOINT, S3_ACCESS_KEY, S3_SECRET_KEY, S3_BUCKET, S3_PUBLIC_URL, CDN_URL
-import logging
+
+from core.config import CDN_URL, S3_ACCESS_KEY, S3_BUCKET, S3_ENDPOINT, S3_PUBLIC_URL, S3_SECRET_KEY
 
 logger = logging.getLogger(__name__)
 

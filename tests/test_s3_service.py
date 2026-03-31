@@ -1,7 +1,10 @@
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
 from botocore.exceptions import ClientError
-from services.s3_service import upload_file_to_s3, delete_file_from_s3
+
+from services.s3_service import delete_file_from_s3, upload_file_to_s3
+
 
 def test_upload_file_to_s3_success(mocker):
     # Мокаем s3_client

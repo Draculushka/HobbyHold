@@ -1,12 +1,14 @@
 import logging
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
+
+from fastapi import Depends, Request
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from fastapi import Request, Depends
 from sqlalchemy.orm import Session
+
+from core.config import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY
 from database import get_db
 from models import User
-from core.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
 logger = logging.getLogger(__name__)
 

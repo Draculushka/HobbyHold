@@ -1,7 +1,9 @@
-from unittest.mock import patch
 from datetime import datetime, timezone
-from services.auth_service import verify_deletion_code, verify_code
+from unittest.mock import patch
+
 from models import User
+from services.auth_service import verify_code, verify_deletion_code
+
 
 class TestAuthServiceExtra:
     @patch("services.auth_service.redis_client")

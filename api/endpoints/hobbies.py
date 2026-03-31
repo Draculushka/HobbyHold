@@ -1,14 +1,14 @@
-from fastapi import APIRouter, Depends, Form, Request, status, UploadFile, File, HTTPException
-from fastapi.responses import RedirectResponse
-from sqlalchemy.orm import Session, joinedload
 from typing import Optional
 
-from database import get_db
-from models import Hobby, Persona
-from services import hobby_service
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile, status
+from fastapi.responses import RedirectResponse
+from sqlalchemy.orm import Session, joinedload
+
 from core.security import get_current_user
 from core.templates import templates
-from models import User
+from database import get_db
+from models import Hobby, Persona, User
+from services import hobby_service
 
 router = APIRouter()
 
@@ -80,9 +80,10 @@ def home(
 
 @router.get("/random")
 def get_random_hobby(request: Request, db: Session = Depends(get_db)):
-    from models import Hobby
-    from sqlalchemy.sql.expression import func
     from sqlalchemy import or_
+    from sqlalchemy.sql.expression import func
+
+    from models import Hobby
 
     # Fetch 20 random hobbies that have either an image or a video
     random_hobbies = db.query(Hobby).filter(

@@ -1,8 +1,10 @@
 import pytest
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from models import User, Persona, Hobby, Comment
-from services.interaction_service import add_comment, update_comment, delete_comment, toggle_reaction
+
+from models import Comment, Hobby, Persona, User
+from services.interaction_service import add_comment, delete_comment, toggle_reaction, update_comment
+
 
 def test_add_comment_errors(db: Session):
     # User not found

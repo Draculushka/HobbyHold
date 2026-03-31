@@ -1,12 +1,12 @@
 import pytest
+from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-from fastapi.testclient import TestClient
 
 from database import get_db
-from models import Base
 from main import app
+from models import Base
 
 # Truly in-memory SQLite database with StaticPool so all connections share the same DB
 SQLALCHEMY_DATABASE_URL = "sqlite://"

@@ -1,7 +1,8 @@
 import nh3
-from markupsafe import Markup
 from fastapi.templating import Jinja2Templates
-from core.config import TEMPLATES_DIR, ALLOWED_TAGS, ALLOWED_ATTRS, ALLOWED_PROTOCOLS
+from markupsafe import Markup
+
+from core.config import ALLOWED_ATTRS, ALLOWED_PROTOCOLS, ALLOWED_TAGS, TEMPLATES_DIR
 
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 templates.env.autoescape = True

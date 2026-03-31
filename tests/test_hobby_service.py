@@ -3,18 +3,17 @@ from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
 import pytest
-from fastapi import UploadFile, HTTPException
+from fastapi import HTTPException, UploadFile
 
-from models import User, Persona, Hobby, Tag
+from models import Hobby, Persona, Tag, User
 from services.hobby_service import (
+    create_hobby,
+    delete_hobby,
+    process_tags,
     sanitize_description,
     save_upload_image,
     search_hobbies,
-    process_tags,
-    create_hobby,
-    delete_hobby,
 )
-
 
 # ─── helpers ────────────────────────────────────────────────────────────────
 

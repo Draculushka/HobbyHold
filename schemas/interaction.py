@@ -1,6 +1,8 @@
-from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Optional
+
+from pydantic import BaseModel, Field
+
 
 class CommentBase(BaseModel):
     text: str = Field(..., max_length=1000)

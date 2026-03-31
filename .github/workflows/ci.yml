@@ -48,7 +48,10 @@ jobs:
           cache: "pip"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt ruff
+        run: |
+          pip install -r requirements.txt
+          pip install ruff mypy bandit alembic sqlalchemy-2-stubs
+          pip install types-redis types-python-jose types-passlib
 
       - name: Check syntax (compile all .py files)
         env:
@@ -56,8 +59,23 @@ jobs:
           DATABASE_URL: "sqlite://"
         run: find . -name "*.py" -not -path "./venv/*" -not -path "./.git/*" -exec python -m py_compile {} +
 
-      - name: Ruff lint
-        run: ruff check . --select=E,F,W --ignore=E501,E402 --exclude=migrations/,seed_hobbies.py --fix
+      - name: Ruff check and format
+        uses: astral-sh/ruff-action@v1
+        with:
+          args: "check --fix"
+
+      - name: Run Mypy (non-blocking)
+        run: mypy . || true
+
+      - name: Security scan (Bandit)
+        run: bandit -r . -x ./tests,./venv,./migrations
+
+      - name: Check for missing migrations
+        env:
+          DATABASE_URL: "sqlite:///./temp.db"
+        run: |
+          alembic upgrade head
+          alembic check
 
   docker:
     runs-on: ubuntu-latest
