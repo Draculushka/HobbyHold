@@ -38,6 +38,9 @@ def upgrade() -> None:
                 batch_op.alter_column('is_admin', server_default=sa.text('false'))
             except Exception:
                 pass
+        else:
+            # Для SQLite просто убедимся, что тип совпадает с моделью в метаданных Alembic
+            batch_op.alter_column('is_admin', type_=sa.Boolean(), existing_type=sa.Boolean())
         
         batch_op.alter_column('is_premium',
                    existing_type=sa.BOOLEAN(),

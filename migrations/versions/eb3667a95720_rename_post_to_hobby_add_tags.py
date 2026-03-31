@@ -24,6 +24,16 @@ def upgrade() -> None:
     # Переименовываем таблицу posts в hobbies
     op.rename_table('posts', 'hobbies')
 
+    if dialect == 'sqlite':
+        # В SQLite индексы не переименовываются автоматически при переименовании таблицы
+        # и остаются с именами старой таблицы. Пересоздадим индекс, чтобы он соответствовал моделям.
+        with op.batch_alter_table('hobbies') as batch_op:
+            try:
+                batch_op.drop_index('ix_posts_id')
+            except Exception:
+                pass
+            batch_op.create_index('ix_hobbies_id', ['id'], unique=False)
+
     if dialect == 'postgresql':
         # Переименовываем индексы и ограничения (Alembic обычно делает это автоматически при rename_table в некоторых диалектах, но лучше явно)
         # В PostgreSQL индексы при переименовании таблицы сохраняются, но их имена могут остаться старыми.
