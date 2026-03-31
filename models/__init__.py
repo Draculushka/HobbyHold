@@ -98,7 +98,7 @@ class Comment(Base):
     hobby = relationship("Hobby", back_populates="comments")
     author_persona = relationship("Persona", back_populates="comments")
     reactions = relationship("CommentReaction", back_populates="comment", cascade="all, delete-orphan")
-    
+
     # Вложенность
     parent = relationship("Comment", remote_side=[id], back_populates="replies")
     replies = relationship("Comment", back_populates="parent", cascade="all, delete-orphan")

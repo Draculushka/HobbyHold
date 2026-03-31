@@ -1,7 +1,6 @@
-import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
-from models import User, Persona, Hobby, Comment, Notification
+from models import User, Persona, Hobby, Notification
 from core.security import create_access_token
 
 def auth_headers(email: str):
@@ -17,7 +16,7 @@ def test_comment_reply_and_notifications(client: TestClient, db: Session):
     db.add(p1)
     db.flush()
     u1.active_persona_id = p1.id
-    
+
     u2 = User(email="u2@test.com", hashed_password="pw", is_active=True)
     db.add(u2)
     db.flush()
@@ -25,7 +24,7 @@ def test_comment_reply_and_notifications(client: TestClient, db: Session):
     db.add(p2)
     db.flush()
     u2.active_persona_id = p2.id
-    
+
     # User 2 creates a hobby
     h = Hobby(title="Hobby 2", description="Desc", persona_id=p2.id)
     db.add(h)

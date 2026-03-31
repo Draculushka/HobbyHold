@@ -73,6 +73,11 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
                 </form>
+                <!-- Сообщества (Заглушка) -->
+                <button onclick="alert('Раздел Сообщества скоро появится!')" class="p-2 text-muted hover:text-primary hover:bg-orange-50 rounded-lg transition-all flex items-center gap-1" title="Сообщества">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                    <span class="text-xs font-bold hidden lg:block">Сообщества</span>
+                </button>
                 <button onclick="document.getElementById('tags-panel').classList.toggle('open')" class="p-2 text-muted hover:text-primary hover:bg-orange-50 rounded-lg transition-all" title="Категории" aria-label="Показать категории">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 11h.01M7 15h.01M13 7h.01M13 11h.01M13 15h.01M17 7h.01M17 11h.01M17 15h.01"/></svg>
                 </button>
@@ -84,6 +89,14 @@
             <!-- Actions -->
             <div class="flex items-center gap-2 ml-auto">
                 {% if user %}
+                <!-- Уведомления (Заглушка) -->
+                <button onclick="alert('Новых уведомлений нет')" class="relative p-2 text-muted hover:text-primary transition-all mr-2" title="Уведомления">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                    <span class="absolute top-1 right-1 flex h-3 w-3">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-3 w-3 bg-accent"></span>
+                    </span>
+                </button>
                 <div class="hidden sm:flex items-center gap-2 bg-dark text-white px-3 py-1.5 rounded-xl mr-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
                     <span class="text-xs font-black">{{ user.tokens }}</span>
@@ -323,46 +336,81 @@
                         <!-- Скрытая секция комментариев -->
                         <div id="comments-{{ hobby.id }}" class="hidden mt-6 space-y-4 animate-in fade-in slide-in-from-top-2">
                             <div class="max-h-60 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
-                                {% for comment in hobby.comments %}
-                                <div class="bg-surface p-4 rounded-2xl text-sm group/comment">
-                                    <div class="flex justify-between items-center mb-1">
-                                        <span class="font-bold text-dark">{{ comment.author_persona.username }}</span>
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-[10px] text-subtle">{{ comment.created_at.strftime('%d.%m %H:%M') }}</span>
+                                {% for comment in (hobby.comments | list) | sort(attribute='created_at', reverse=True) %}
+                                {% if not comment.parent_id %}
+                                <div class="space-y-2 group/thread">
+                                    <!-- Root Comment (Single Box) -->
+                                    <div class="bg-surface p-4 rounded-2xl text-sm group/comment overflow-hidden" id="comment-{{ comment.id }}">
+                                        <div class="flex justify-between items-center mb-1">
+                                            <span class="font-bold text-dark">{{ comment.author_persona.username }}</span>
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-[10px] text-subtle">{{ comment.created_at.strftime('%d.%m %H:%M') }}</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <p class="text-muted text-left leading-relaxed break-words overflow-hidden" id="comment-text-{{ comment.id }}">{{ comment.text }}</p>
-                                    
-                                    <div class="mt-2 flex items-center justify-between">
-                                        <div class="flex items-center gap-4">
-                                            {% set comment_like_count = comment.reactions | length %}
-                                            {% set my_comment_like = comment.reactions | selectattr('persona_id', 'in', user_persona_ids) | first if user else none %}
-                                            <button onclick="toggleCommentLike(this, {{ comment.id }})" data-active="{{ 'true' if my_comment_like else 'false' }}"
-                                                    class="flex items-center gap-1.5 text-xs font-bold {{ 'text-danger' if my_comment_like else 'text-muted hover:text-danger' }} transition-colors group/btn">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 {{ 'fill-current' if my_comment_like else 'fill-none stroke-current' }} group-hover/btn:scale-110 transition-transform" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
-                                                <span id="count-comment-like-{{ comment.id }}">{{ comment_like_count if comment_like_count > 0 else '' }}</span>
-                                            </button>
-                                        </div>
-                                    
-                                        {% if user and (comment.author_persona.user_id == user.id or user.is_admin or hobby.author_persona.user_id == user.id) %}
-                                        <div class="hidden group-hover/comment:flex items-center gap-1 bg-white/80 backdrop-blur-sm p-1 rounded-lg shadow-sm border border-border/50">
-                                            {% if comment.author_persona.user_id == user.id %}
-                                            <button onclick="editComment({{ comment.id }}, {{ comment.text | tojson | forceescape }})" class="text-subtle hover:text-primary p-0.5" title="Редактировать">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                                            </button>
+                                        <p class="text-muted text-left leading-relaxed break-words overflow-hidden" id="comment-text-{{ comment.id }}">{{ comment.text }}</p>
+
+                                        <div class="mt-2 flex items-center justify-between">
+                                            <div class="flex items-center gap-4">
+                                                {% set cl_count = comment.reactions | length %}
+                                                {% set my_cl = comment.reactions | selectattr('persona_id', 'in', user_persona_ids) | first if user else none %}
+                                                <button onclick="toggleCommentLike(this, {{ comment.id }})" data-active="{{ 'true' if my_cl else 'false' }}"
+                                                        class="flex items-center gap-1.5 text-xs font-bold {{ 'text-danger' if my_cl else 'text-muted hover:text-danger' }} transition-colors group/btn">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 {{ 'fill-current' if my_cl else 'fill-none stroke-current' }} group-hover/btn:scale-110 transition-transform" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                                                    <span id="count-comment-like-{{ comment.id }}">{{ cl_count if cl_count > 0 else '' }}</span>
+                                                </button>
+                                                {% if user %}
+                                                <button onclick="setReplyTarget({{ hobby.id }}, {{ comment.id }}, '{{ comment.author_persona.username }}')" class="text-[10px] font-bold text-muted hover:text-primary transition-colors">
+                                                    Ответить
+                                                </button>
+                                                {% endif %}
+                                            </div>
+
+                                            {% if user and (comment.author_persona.user_id == user.id or user.is_admin or hobby.author_persona.user_id == user.id) %}
+                                            <div class="hidden group-hover/comment:flex items-center gap-1 bg-white/80 backdrop-blur-sm p-1 rounded-lg shadow-sm border border-border/50">
+                                                {% if comment.author_persona.user_id == user.id %}
+                                                <button onclick="editComment({{ comment.id }}, {{ comment.text | tojson | forceescape }})" class="text-subtle hover:text-primary p-0.5" title="Редактировать">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                                                </button>
+                                                {% endif %}
+                                                <button onclick="deleteComment({{ comment.id }})" class="text-subtle hover:text-danger p-0.5" title="Удалить">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                </button>
+                                            </div>
                                             {% endif %}
-                                            <button onclick="deleteComment({{ comment.id }})" class="text-subtle hover:text-danger p-0.5" title="Удалить">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                            </button>
                                         </div>
+
+                                        {% if comment.replies %}
+                                        <button onclick="toggleIndexReplies({{ comment.id }})" id="replies-btn-{{ comment.id }}" class="mt-2 text-[9px] font-bold text-primary uppercase tracking-tighter hover:underline flex items-center gap-1">
+                                            <span>{{ comment.replies | length }} ответов</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-2 w-2 transition-transform" id="replies-icon-{{ comment.id }}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"/></svg>
+                                        </button>
                                         {% endif %}
+
+                                        <!-- Replies inside the same Box -->
+                                        <div id="replies-container-{{ comment.id }}" class="hidden space-y-2 mt-3 pt-3 border-t border-border/40">
+                                            {% for reply in (comment.replies | list) | sort(attribute='created_at') %}
+                                            <div class="bg-surface/60 p-3 rounded-xl text-xs group/comment">
+                                                <div class="flex justify-between items-center mb-1">
+                                                    <span class="font-bold text-dark">{{ reply.author_persona.username }}</span>
+                                                    <span class="text-[9px] text-subtle">{{ reply.created_at.strftime('%H:%M') }}</span>
+                                                </div>
+                                                <p class="text-muted leading-relaxed break-words">{{ reply.text }}</p>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
                                     </div>
                                 </div>
+                                {% endif %}
                                 {% endfor %}
                             </div>
                             
                             {% if user %}
                             <div class="space-y-3 pt-4 border-t border-border/50">
+                                <input type="hidden" id="parent-comment-id-{{ hobby.id }}" value="">
+                                <div id="reply-indicator-{{ hobby.id }}" class="hidden flex items-center justify-between bg-white/50 px-3 py-1 rounded-lg border border-border/20">
+                                    <span class="text-[9px] font-bold text-muted uppercase">Ответ для <span id="reply-target-name-{{ hobby.id }}" class="text-primary font-black"></span></span>
+                                    <button type="button" onclick="cancelIndexReply({{ hobby.id }})" class="text-muted hover:text-danger">&times;</button>
+                                </div>
                                 <div class="flex items-center justify-between px-1">
                                     <span class="text-[10px] font-bold text-muted uppercase tracking-widest">Комментировать как:</span>
                                     {% if user.personas|length > 1 %}
@@ -595,11 +643,9 @@
         let currentCount = parseInt(countSpan.textContent) || 0;
 
         // --- OPTIMISTIC UI UPDATE ---
-        // Save previous state to revert if needed
         const prevActive = isActive;
         const prevCount = currentCount;
 
-        // Apply new state immediately
         let newActive;
         
         if (emojiType === 'heart') {
@@ -620,7 +666,6 @@
                 countSpan.textContent = Math.max(0, currentCount - 1);
             }
         } else {
-            // Premium emojis: всегда добавляем, не переключаем
             newActive = true;
             buttonElement.setAttribute('data-active', 'true');
             
@@ -630,12 +675,10 @@
             iconSpan.classList.add('filter-none');
             countSpan.textContent = currentCount + 1;
             
-            // Легкая анимация
             iconSpan.classList.add('animate-bounce');
             setTimeout(() => iconSpan.classList.remove('animate-bounce'), 500);
         }
 
-        // --- SERVER REQUEST ---
         try {
             const response = await fetch(`/api/v1/hobbies/${hobbyId}/reactions`, {
                 method: 'POST',
@@ -651,7 +694,6 @@
             }
 
             if (!response.ok) {
-                // REVERT UI ON FAILURE
                 buttonElement.setAttribute('data-active', prevActive ? 'true' : 'false');
                 countSpan.textContent = prevCount;
 
@@ -675,91 +717,101 @@
                         iconSpan.classList.add('grayscale', 'opacity-40', 'group-hover:grayscale-0', 'group-hover:opacity-100');
                     }
                 }
-                
                 const data = await response.json().catch(() => null);
-                if (data && data.detail) {
-                    alert(data.detail);
-                }
+                if (data && data.detail) alert(data.detail);
             }
-        } catch (e) {
-            console.error('Like error:', e);
-        }
+        } catch (e) { console.error('Like error:', e); }
     }
+
     async function editComment(commentId, currentText) {
         const newText = prompt("Редактировать комментарий:", currentText);
         if (newText === null || newText.trim() === "" || newText === currentText) return;
-
         try {
             const response = await fetch(`/api/v1/hobbies/comments/${commentId}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text: newText.trim() })
             });
-
-            if (response.ok) {
-                location.reload();
-            } else {
-                const data = await response.json();
-                alert(data.detail || "Ошибка при редактировании");
-            }
-        } catch (e) {
-            console.error('Edit error:', e);
-        }
+            if (response.ok) location.reload();
+            else { const data = await response.json(); alert(data.detail || "Ошибка"); }
+        } catch (e) { console.error(e); }
     }
 
     async function deleteComment(commentId) {
         if (!confirm("Удалить этот комментарий?")) return;
-
         try {
-            const response = await fetch(`/api/v1/hobbies/comments/${commentId}`, {
-                method: 'DELETE'
-            });
+            const response = await fetch(`/api/v1/hobbies/comments/${commentId}`, { method: 'DELETE' });
+            if (response.ok) location.reload();
+            else { const data = await response.json(); alert(data.detail || "Ошибка"); }
+        } catch (e) { console.error(e); }
+    }
 
-            if (response.ok) {
-                location.reload();
-            } else {
-                const data = await response.json();
-                alert(data.detail || "Ошибка при удалении");
-            }
-        } catch (e) {
-            console.error('Delete error:', e);
+    function setReplyTarget(hobbyId, commentId, username) {
+        document.getElementById(`parent-comment-id-${hobbyId}`).value = commentId;
+        document.getElementById(`reply-target-name-${hobbyId}`).textContent = username;
+        document.getElementById(`reply-indicator-${hobbyId}`).classList.remove('hidden');
+        
+        const input = document.getElementById(`comment-input-${hobbyId}`);
+        input.value = `@${username}, ` + input.value;
+        input.focus();
+    }
+
+    function cancelIndexReply(hobbyId) {
+        document.getElementById(`parent-comment-id-${hobbyId}`).value = "";
+        document.getElementById(`reply-indicator-${hobbyId}`).classList.add('hidden');
+    }
+
+    function toggleIndexReplies(commentId) {
+        const container = document.getElementById(`replies-container-${commentId}`);
+        const btn = document.getElementById(`replies-btn-${commentId}`);
+        const icon = document.getElementById(`replies-icon-${commentId}`);
+        const isHidden = container.classList.contains('hidden');
+        
+        if (isHidden) {
+            container.classList.remove('hidden');
+            icon.style.transform = 'rotate(180deg)';
+            btn.querySelector('span').textContent = 'Скрыть ответы';
+        } else {
+            container.classList.add('hidden');
+            icon.style.transform = 'rotate(0deg)';
+            btn.querySelector('span').textContent = `${container.querySelectorAll('.group/comment').length} ответов`;
         }
     }
 
     async function addComment(hobbyId) {
         const input = document.getElementById(`comment-input-${hobbyId}`);
         const personaSelect = document.getElementById(`comment-persona-${hobbyId}`);
+        const parentIdInput = document.getElementById(`parent-comment-id-${hobbyId}`);
         if (!input) return;
         const text = input.value.trim();
         const personaId = personaSelect ? personaSelect.value : null;
+        const parentId = parentIdInput ? parentIdInput.value : null;
         if (!text) return;
 
         try {
             const response = await fetch(`/api/v1/hobbies/${hobbyId}/comments`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     text: text, 
-                    persona_id: personaId ? parseInt(personaId) : null 
+                    persona_id: personaId ? parseInt(personaId) : null,
+                    parent_id: parentId ? parseInt(parentId) : null
                 })
             });
+            if (response.status === 401) { window.location.href = '/login'; return; }
+            if (response.ok) location.reload(); 
+            else { const data = await response.json().catch(() => ({})); alert(data.detail || "Ошибка"); }
+        } catch (e) { console.error('Comment error:', e); }
+    }
 
-            if (response.status === 401) {
-                window.location.href = '/login';
-                return;
-            }
-
-            if (response.ok) {
-                location.reload(); 
-            } else {
-                const data = await response.json().catch(() => ({}));
-                alert(data.detail || "Ошибка при отправке комментария");
-            }
-        } catch (e) {
-            console.error('Comment error:', e);
-        }
+    function openImage(src) {
+        document.getElementById('modalImg').src = src;
+        document.getElementById('imageModal').classList.replace('hidden', 'flex');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeImageModal() {
+        document.getElementById('imageModal').classList.replace('hidden', 'flex');
+        document.body.style.overflow = 'auto';
     }
 </script>
 {% endblock %}

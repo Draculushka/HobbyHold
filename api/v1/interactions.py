@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from typing import Optional
 from database import get_db
 from models import User
 from schemas.interaction import (
-    CommentCreate, CommentResponse, ReactionCreate, ReactionResponse, 
+    CommentCreate, CommentResponse, ReactionCreate, ReactionResponse,
     CommentUpdate, CommentReactionResponse, FollowResponse, PersonaStatsResponse,
     NotificationResponse
 )

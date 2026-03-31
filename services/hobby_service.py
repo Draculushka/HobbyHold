@@ -195,6 +195,7 @@ def search_hobbies(db: Session, search: str, cursor: int | None, limit: int):
             joinedload(Hobby.tags),
             joinedload(Hobby.comments).joinedload(Comment.author_persona),
             joinedload(Hobby.comments).joinedload(Comment.reactions),
+            joinedload(Hobby.comments).joinedload(Comment.replies).joinedload(Comment.author_persona),
             joinedload(Hobby.reactions).joinedload(Reaction.author_persona)
         )
         .order_by(Hobby.id.desc())

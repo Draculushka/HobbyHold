@@ -70,7 +70,9 @@ def add_comment(db: Session, hobby_id: int, user_id: int, text: str, persona_id:
 
 def update_comment(db: Session, comment_id: int, user_id: int, new_text: str) -> Comment:
     comment = db.query(Comment).options(joinedload(Comment.author_persona)).filter(Comment.id == comment_id).first()
-    if not comment or comment.author_persona.user_id != user_id:
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+    if comment.author_persona.user_id != user_id:
         raise HTTPException(status_code=403, detail="Not authorized")
     comment.text = new_text
     db.commit()
@@ -79,9 +81,11 @@ def update_comment(db: Session, comment_id: int, user_id: int, new_text: str) ->
 
 def delete_comment(db: Session, comment_id: int, user_id: int):
     comment = db.query(Comment).options(joinedload(Comment.author_persona), joinedload(Comment.hobby)).filter(Comment.id == comment_id).first()
-    if not comment: return
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
     is_author = (comment.author_persona.user_id == user_id)
-    is_admin = db.query(User).filter(User.id == user_id, User.is_admin).first() is not None
+    user = db.query(User).filter(User.id == user_id).first()
+    is_admin = user.is_admin if user else False
     is_owner = (comment.hobby.author_persona.user_id == user_id)
     if not (is_author or is_admin or is_owner):
         raise HTTPException(status_code=403, detail="Not authorized")
@@ -91,12 +95,22 @@ def delete_comment(db: Session, comment_id: int, user_id: int):
 def toggle_reaction(db: Session, hobby_id: int, user_id: int, emoji_type: str = "heart") -> Optional[Reaction]:
     user = db.query(User).filter(User.id == user_id).with_for_update().first()
     if not user: raise HTTPException(status_code=404)
+    
     if emoji_type != "heart" and user.tokens < 1:
         raise HTTPException(status_code=400, detail="Need tokens")
     
     persona_id = user.active_persona_id
+    if not persona_id:
+        persona = db.query(Persona).filter(Persona.user_id == user_id, Persona.is_default).first()
+        if not persona:
+            persona = db.query(Persona).filter(Persona.user_id == user_id).first()
+        if not persona:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No persona found for user")
+        persona_id = persona.id
+        user.active_persona_id = persona_id
+
     hobby = db.query(Hobby).options(joinedload(Hobby.author_persona)).filter(Hobby.id == hobby_id).first()
-    
+    if not hobby: raise HTTPException(status_code=404, detail="Hobby not found")
     if emoji_type == "heart":
         existing = db.query(Reaction).filter(Reaction.hobby_id == hobby_id, Reaction.persona_id == persona_id, Reaction.emoji_type == "heart").first()
         if existing:
@@ -105,12 +119,12 @@ def toggle_reaction(db: Session, hobby_id: int, user_id: int, emoji_type: str = 
             return None
         res = Reaction(hobby_id=hobby_id, persona_id=persona_id, emoji_type="heart")
         if hobby.author_persona.user_id != user_id:
-            create_notification(db, hobby.author_persona.user_id, "like", f"Ваш пост '{hobby.title}' ❤️", f"/p/{hobby.id}")
+            create_notification(db, hobby.author_persona.user_id, "like", f"Ваш post '{hobby.title}' ❤️", f"/p/{hobby.id}")
     else:
         user.tokens -= 1
         res = Reaction(hobby_id=hobby_id, persona_id=persona_id, emoji_type=emoji_type)
         if hobby.author_persona.user_id != user_id:
-            create_notification(db, hobby.author_persona.user_id, "premium_like", f"Ваш пост получил {emoji_type}", f"/p/{hobby.id}")
+            create_notification(db, hobby.author_persona.user_id, "premium_like", f"Ваш post получил {emoji_type}", f"/p/{hobby.id}")
     
     db.add(res)
     db.commit()
@@ -119,6 +133,8 @@ def toggle_reaction(db: Session, hobby_id: int, user_id: int, emoji_type: str = 
 def toggle_comment_reaction(db: Session, comment_id: int, user_id: int) -> Optional[CommentReaction]:
     user = db.query(User).filter(User.id == user_id).first()
     persona_id = user.active_persona_id
+    comment = db.query(Comment).filter(Comment.id == comment_id).first()
+    if not comment: raise HTTPException(status_code=404)
     existing = db.query(CommentReaction).filter(CommentReaction.comment_id == comment_id, CommentReaction.persona_id == persona_id).first()
     if existing:
         db.delete(existing)
@@ -132,7 +148,8 @@ def toggle_comment_reaction(db: Session, comment_id: int, user_id: int) -> Optio
 def follow_persona(db: Session, follower_user_id: int, followed_persona_id: int) -> Follow:
     user = db.query(User).filter(User.id == follower_user_id).first()
     target = db.query(Persona).filter(Persona.id == followed_persona_id).first()
-    if user.id == target.user_id: raise HTTPException(status_code=400)
+    if not target: raise HTTPException(status_code=404)
+    if user.id == target.user_id: raise HTTPException(status_code=400, detail="Вы не можете подписаться на самого себя")
     
     follow = Follow(follower_persona_id=user.active_persona_id, followed_persona_id=followed_persona_id, follower_user_id=user.id, followed_user_id=target.user_id)
     db.add(follow)

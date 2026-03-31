@@ -1,6 +1,6 @@
 import pytest
 from sqlalchemy.orm import Session
-from models import User, Persona, Follow
+from models import User, Persona
 from services.interaction_service import follow_persona, unfollow_persona, get_persona_followers_count, is_following
 from fastapi import HTTPException
 
@@ -13,7 +13,7 @@ def test_follow_persona_success(db: Session):
     db.add(p1)
     db.flush()
     u1.active_persona_id = p1.id
-    
+
     # User B with Persona 2
     u2 = User(email="u2@test.com", hashed_password="pw", is_active=True)
     db.add(u2)
@@ -73,7 +73,7 @@ def test_unique_follower_count(db: Session):
     p_a2 = Persona(user_id=u_a.id, username="a2")
     db.add(p_a1)
     db.add(p_a2)
-    
+
     # User B with 1 persona
     u_b = User(email="b@test.com", hashed_password="pw", is_active=True)
     db.add(u_b)
@@ -86,7 +86,7 @@ def test_unique_follower_count(db: Session):
     u_a.active_persona_id = p_a1.id
     db.commit()
     follow_persona(db, u_a.id, p_b.id)
-    
+
     # User A Persona 2 follows B
     u_a.active_persona_id = p_a2.id
     db.commit()
@@ -103,7 +103,7 @@ def test_unfollow_persona(db: Session):
     db.add(p1)
     db.flush()
     u1.active_persona_id = p1.id
-    
+
     u2 = User(email="u2_un@test.com", hashed_password="pw", is_active=True)
     db.add(u2)
     db.flush()
@@ -113,7 +113,7 @@ def test_unfollow_persona(db: Session):
 
     follow_persona(db, u1.id, p2.id)
     assert get_persona_followers_count(db, p2.id) == 1
-    
+
     unfollow_persona(db, u1.id, p2.id)
     assert get_persona_followers_count(db, p2.id) == 0
     assert is_following(db, u1.id, p2.id) is False

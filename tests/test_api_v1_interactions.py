@@ -1,4 +1,3 @@
-import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 from models import User, Persona, Hobby
@@ -17,7 +16,7 @@ def test_follow_persona_endpoint(client: TestClient, db: Session):
     db.add(p1)
     db.flush()
     u1.active_persona_id = p1.id
-    
+
     u2 = User(email="u2_api@test.com", hashed_password="pw", is_active=True)
     db.add(u2)
     db.flush()
@@ -60,7 +59,7 @@ def test_hobby_interactions_endpoints(client: TestClient, db: Session):
     db.add(p)
     db.flush()
     u.active_persona_id = p.id
-    
+
     h = Hobby(title="Hobby", description="Desc", persona_id=p.id)
     db.add(h)
     db.commit()
