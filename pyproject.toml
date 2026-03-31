@@ -1,5 +1,14 @@
 [tool.ruff]
 line-length = 120
+exclude = [
+    "migrations/",
+    "seed_hobbies.py",
+    "venv/",
+    ".git/",
+    "__pycache__/"
+]
+
+[tool.ruff.lint]
 select = ["E", "F", "I", "B", "S"]
 ignore = [
     "E501", # Длинные строки
@@ -9,13 +18,6 @@ ignore = [
     "B904", # raise from (упрощаем обработку ошибок)
     "S105", # token_type = "bearer" (ложное срабатывание на пароль)
     "S603"  # subprocess.run (нужен для FFmpeg)
-]
-exclude = [
-    "migrations/",
-    "seed_hobbies.py",
-    "venv/",
-    ".git/",
-    "__pycache__/"
 ]
 
 [tool.ruff.lint.isort]

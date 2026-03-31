@@ -50,7 +50,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          pip install ruff mypy bandit alembic sqlalchemy-2-stubs
+          pip install ruff mypy bandit alembic
           pip install types-redis types-python-jose types-passlib
 
       - name: Check syntax (compile all .py files)
